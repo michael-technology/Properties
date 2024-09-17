@@ -463,7 +463,11 @@ var geolocateControl = (function (Control) {
                 isTracking = false;
           } else if (geolocation.getTracking()) {
                 map.addLayer(geolocateOverlay);
-                map.getView().setCenter(geolocation.getPosition());
+                // map.getView().setCenter(geolocation.getPosition());
+                map.getView().animate({
+                  zoom: 18,
+                  center: geolocation.getPosition()
+                });
                 isTracking = true;
           }
         };
