@@ -1039,9 +1039,9 @@ var layerSwitcher2 = new ol.control.LayerSwitcher2({
     activationMode: 'click',
 	startActive: true,
 	tipLabel: "Layers",
-    target: 'top-right-container',
-    label: '«',
-	collapseLabel: '»',
+    target: 'bottom-left-container',
+    label: '»',
+	collapseLabel: '«',
 	collapseTipLabel: 'Close'
     });
 map.addControl(layerSwitcher2);
@@ -1127,66 +1127,254 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     lyr_Residential400k700k_82.on('propertychange', function() {
         lyr_Residential400k700k_81.changed();
+        if (lyr_Residential400k700k_82.getVisible()) {
+            lyr_Residential400k700k_82.set('title', 'Residential 400k - 700k<br />\
+    <img src="styles/legend/Residential400k700k_81_0.png" /> 600k - 700k<br />\
+    <img src="styles/legend/Residential400k700k_81_1.png" /> 500k - 600k<br />\
+    <img src="styles/legend/Residential400k700k_81_2.png" /> 400k - 500k<br />')
+        } else {
+            lyr_Residential400k700k_82.set('title', 'Residential 400k - 700k')
+        }
     })
     lyr_ResidentialAbove700k_84.on('propertychange', function() {
         lyr_ResidentialAbove700k_83.changed();
+        if (lyr_ResidentialAbove700k_84.getVisible()) {
+            lyr_ResidentialAbove700k_84.set('title', 'Residential Above 700k<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_0.png" /> Above 2m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_1.png" /> 1.75m - 2m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_2.png" /> 1.5m - 1.75m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_3.png" /> 1.25m - 1.5m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_4.png" /> 1m - 1.25m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_5.png" /> 900k - 1m<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_6.png" /> 800k - 900k<br />\
+    <img src="styles/legend/ResidentialAbove700k_83_7.png" /> 700k - 800k<br />')
+        } else {
+            lyr_ResidentialAbove700k_84.set('title', 'Residential Above 700k')
+        }
     })
     lyr_ResidentialCommonArea_75.on('propertychange', function() {
         lyr_ResidentialCommonArea_74.changed();
     })
     lyr_ManufacturedHomes_77.on('propertychange', function() {
         lyr_ManufacturedHomes_76.changed();
+        if (lyr_ManufacturedHomes_77.getVisible()) {
+            lyr_ManufacturedHomes_77.set('title', 'Manufactured Homes<br />\
+    <img src="styles/legend/ManufacturedHomes_76_0.png" /> Above 7m<br />\
+    <img src="styles/legend/ManufacturedHomes_76_1.png" /> 2m - 7m<br />\
+    <img src="styles/legend/ManufacturedHomes_76_2.png" /> 500k - 2m<br />\
+    <img src="styles/legend/ManufacturedHomes_76_3.png" /> Under 500k<br />')
+        } else {
+            lyr_ManufacturedHomes_77.set('title', 'Manufactured Homes')
+        }
     })
     lyr_ApartmentsSmall_71.on('propertychange', function() {
         lyr_ApartmentsSmall_70.changed();
+        if (lyr_ApartmentsSmall_71.getVisible()) {
+            lyr_ApartmentsSmall_71.set('title', 'Apartments - Small<br />\
+    <img src="styles/legend/ApartmentsSmall_70_0.png" /> Above 2m<br />\
+    <img src="styles/legend/ApartmentsSmall_70_1.png" /> Under 2m<br />')
+        } else {
+            lyr_ApartmentsSmall_71.set('title', 'Apartments - Small')
+        }
     })
     lyr_ApartmentsLarge_73.on('propertychange', function() {
         lyr_ApartmentsLarge_72.changed();
+        if (lyr_ApartmentsLarge_73.getVisible()) {
+            lyr_ApartmentsLarge_73.set('title', 'Apartments - Large<br />\
+    <img src="styles/legend/ApartmentsLarge_72_0.png" /> Above 55m<br />\
+    <img src="styles/legend/ApartmentsLarge_72_1.png" /> 35m - 55m<br />\
+    <img src="styles/legend/ApartmentsLarge_72_2.png" /> 20m - 35m<br />\
+    <img src="styles/legend/ApartmentsLarge_72_3.png" /> 7m - 20m<br />\
+    <img src="styles/legend/ApartmentsLarge_72_4.png" /> Under 7m<br />')
+        } else {
+            lyr_ApartmentsLarge_73.set('title', 'Apartments - Large')
+        }
     })
     lyr_Agriculture_23.on('propertychange', function() {
         lyr_Agriculture_22.changed();
+        if (lyr_Agriculture_23.getVisible()) {
+            lyr_Agriculture_23.set('title', 'Agriculture<br />\
+    <img src="styles/legend/Agriculture_22_0.png" /> Above 2m<br />\
+    <img src="styles/legend/Agriculture_22_1.png" /> 250k - 2m<br />\
+    <img src="styles/legend/Agriculture_22_2.png" /> Under 250k<br />')
+        } else {
+            lyr_Agriculture_23.set('title', 'Agriculture')
+        }
     })
     lyr_MiscCommercial_25.on('propertychange', function() {
         lyr_MiscCommercial_24.changed();
+        if (lyr_MiscCommercial_25.getVisible()) {
+            lyr_MiscCommercial_25.set('title', 'Misc. Commercial<br />\
+    <img src="styles/legend/MiscCommercial_24_0.png" /> Above 97m<br />\
+    <img src="styles/legend/MiscCommercial_24_1.png" /> 57m - 97m<br />\
+    <img src="styles/legend/MiscCommercial_24_2.png" /> 30m - 57m<br />\
+    <img src="styles/legend/MiscCommercial_24_3.png" /> 21m - 30m<br />\
+    <img src="styles/legend/MiscCommercial_24_4.png" /> 14m - 21m<br />\
+    <img src="styles/legend/MiscCommercial_24_5.png" /> 8m - 14m<br />\
+    <img src="styles/legend/MiscCommercial_24_6.png" /> 4.5m - 8m<br />\
+    <img src="styles/legend/MiscCommercial_24_7.png" /> 2m - 4.5m<br />\
+    <img src="styles/legend/MiscCommercial_24_8.png" /> 700k - 2m<br />\
+    <img src="styles/legend/MiscCommercial_24_9.png" /> Under 700k<br />')
+        } else {
+            lyr_MiscCommercial_25.set('title', 'Misc. Commercial')
+        }
     })
     lyr_IndustrialFacilities_27.on('propertychange', function() {
         lyr_IndustrialFacilities_26.changed();
+        if (lyr_IndustrialFacilities_27.getVisible()) {
+            lyr_IndustrialFacilities_27.set('title', 'Industrial Facilities<br />\
+    <img src="styles/legend/IndustrialFacilities_26_0.png" /> Above 58m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_1.png" /> 40m - 58m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_2.png" /> 25m - 40m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_3.png" /> 15m - 25m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_4.png" /> 8m - 15m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_5.png" /> 5m - 8m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_6.png" /> 3m - 5m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_7.png" /> 1.5m - 3m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_8.png" /> 500k - 1.5m<br />\
+    <img src="styles/legend/IndustrialFacilities_26_9.png" /> Under 500k<br />')
+        } else {
+            lyr_IndustrialFacilities_27.set('title', 'Industrial Facilities')
+        }
     })
     lyr_MilitaryPoliceFire_29.on('propertychange', function() {
         lyr_MilitaryPoliceFire_28.changed();
+        if (lyr_MilitaryPoliceFire_29.getVisible()) {
+            lyr_MilitaryPoliceFire_29.set('title', 'Military, Police, & Fire<br />\
+    <img src="styles/legend/MilitaryPoliceFire_28_0.png" /> Above 15m<br />\
+    <img src="styles/legend/MilitaryPoliceFire_28_1.png" /> 3.5m - 15m<br />\
+    <img src="styles/legend/MilitaryPoliceFire_28_2.png" /> Under 3.5m<br />')
+        } else {
+            lyr_MilitaryPoliceFire_29.set('title', 'Military, Police, & Fire')
+        }
     })
     lyr_Schools_31.on('propertychange', function() {
         lyr_Schools_30.changed();
+        if (lyr_Schools_31.getVisible()) {
+            lyr_Schools_31.set('title', 'Schools<br />\
+    <img src="styles/legend/Schools_30_0.png" /> Above 100m<br />\
+    <img src="styles/legend/Schools_30_1.png" /> 55m - 100m<br />\
+    <img src="styles/legend/Schools_30_2.png" /> 37m - 55m<br />\
+    <img src="styles/legend/Schools_30_3.png" /> 26m - 37m<br />\
+    <img src="styles/legend/Schools_30_4.png" /> 18m - 26m<br />\
+    <img src="styles/legend/Schools_30_5.png" /> 12.5m - 18m<br />\
+    <img src="styles/legend/Schools_30_6.png" /> 7.5m - 12.5m<br />\
+    <img src="styles/legend/Schools_30_7.png" /> 3.5m - 7.5m<br />\
+    <img src="styles/legend/Schools_30_8.png" /> 1m - 3.5m<br />\
+    <img src="styles/legend/Schools_30_9.png" /> Under 1m<br />')
+        } else {
+            lyr_Schools_31.set('title', 'Schools')
+        }
     })
     lyr_ParksRec_33.on('propertychange', function() {
         lyr_ParksRec_32.changed();
+        if (lyr_ParksRec_33.getVisible()) {
+            lyr_ParksRec_33.set('title', 'Parks & Rec.<br />\
+    <img src="styles/legend/ParksRec_32_0.png" /> Above 6m<br />\
+    <img src="styles/legend/ParksRec_32_1.png" /> 2m - 6m<br />\
+    <img src="styles/legend/ParksRec_32_2.png" /> Under 2m<br />')
+        } else {
+            lyr_ParksRec_33.set('title', 'Parks & Rec.')
+        }
     })
     lyr_ParkingFacilities_35.on('propertychange', function() {
         lyr_ParkingFacilities_34.changed();
+        if (lyr_ParkingFacilities_35.getVisible()) {
+            lyr_ParkingFacilities_35.set('title', 'Parking Facilities<br />\
+    <img src="styles/legend/ParkingFacilities_34_0.png" /> Above 7m<br />\
+    <img src="styles/legend/ParkingFacilities_34_1.png" /> 2m - 7m<br />\
+    <img src="styles/legend/ParkingFacilities_34_2.png" /> Under 2m<br />')
+        } else {
+            lyr_ParkingFacilities_35.set('title', 'Parking Facilities')
+        }
     })
     lyr_VehicleServicesSales_37.on('propertychange', function() {
         lyr_VehicleServicesSales_36.changed();
+        if (lyr_VehicleServicesSales_37.getVisible()) {
+            lyr_VehicleServicesSales_37.set('title', 'Vehicle Services & Sales<br />\
+    <img src="styles/legend/VehicleServicesSales_36_0.png" /> Above 7m<br />\
+    <img src="styles/legend/VehicleServicesSales_36_1.png" /> 2m - 7m<br />\
+    <img src="styles/legend/VehicleServicesSales_36_2.png" /> Under 2m<br />')
+        } else {
+            lyr_VehicleServicesSales_37.set('title', 'Vehicle Services & Sales')
+        }
     })
     lyr_OfficesBanks_39.on('propertychange', function() {
         lyr_OfficesBanks_38.changed();
+        if (lyr_OfficesBanks_39.getVisible()) {
+            lyr_OfficesBanks_39.set('title', 'Offices & Banks<br />\
+    <img src="styles/legend/OfficesBanks_38_0.png" /> Above 13m<br />\
+    <img src="styles/legend/OfficesBanks_38_1.png" /> 3m - 13m<br />\
+    <img src="styles/legend/OfficesBanks_38_2.png" /> Under 3m<br />')
+        } else {
+            lyr_OfficesBanks_39.set('title', 'Offices & Banks')
+        }
     })
     lyr_Supermarkets_41.on('propertychange', function() {
         lyr_Supermarkets_40.changed();
+        if (lyr_Supermarkets_41.getVisible()) {
+            lyr_Supermarkets_41.set('title', 'Supermarkets<br />\
+    <img src="styles/legend/Supermarkets_40_0.png" /> Above 6m<br />\
+    <img src="styles/legend/Supermarkets_40_1.png" /> 500k - 6m<br />\
+    <img src="styles/legend/Supermarkets_40_2.png" /> Under 500k<br />')
+        } else {
+            lyr_Supermarkets_41.set('title', 'Supermarkets')
+        }
     })
     lyr_ConvenienceMarkets_43.on('propertychange', function() {
         lyr_ConvenienceMarkets_42.changed();
+        if (lyr_ConvenienceMarkets_43.getVisible()) {
+            lyr_ConvenienceMarkets_43.set('title', 'Convenience Markets<br />\
+    <img src="styles/legend/ConvenienceMarkets_42_0.png" /> Above 1.5m<br />\
+    <img src="styles/legend/ConvenienceMarkets_42_1.png" /> 700k - 1.5m<br />\
+    <img src="styles/legend/ConvenienceMarkets_42_2.png" /> Under 700k<br />')
+        } else {
+            lyr_ConvenienceMarkets_43.set('title', 'Convenience Markets')
+        }
     })
     lyr_DepartmentStores_45.on('propertychange', function() {
         lyr_DepartmentStores_44.changed();
+        if (lyr_DepartmentStores_45.getVisible()) {
+            lyr_DepartmentStores_45.set('title', 'Department Stores<br />\
+    <img src="styles/legend/DepartmentStores_44_0.png" /> Above 10m<br />\
+    <img src="styles/legend/DepartmentStores_44_1.png" /> 2m - 10m<br />\
+    <img src="styles/legend/DepartmentStores_44_2.png" /> Under 2m<br />')
+        } else {
+            lyr_DepartmentStores_45.set('title', 'Department Stores')
+        }
     })
     lyr_Stores_47.on('propertychange', function() {
         lyr_Stores_46.changed();
+        if (lyr_Stores_47.getVisible()) {
+            lyr_Stores_47.set('title', 'Stores<br />\
+    <img src="styles/legend/Stores_46_0.png" /> Above 7m<br />\
+    <img src="styles/legend/Stores_46_1.png" /> 1m - 7m<br />\
+    <img src="styles/legend/Stores_46_2.png" /> Under 1m<br />')
+        } else {
+            lyr_Stores_47.set('title', 'Stores')
+        }
     })
     lyr_Entertainment_49.on('propertychange', function() {
         lyr_Entertainment_48.changed();
+        if (lyr_Entertainment_49.getVisible()) {
+            lyr_Entertainment_49.set('title', 'Entertainment<br />\
+    <img src="styles/legend/Entertainment_48_0.png" /> Above 5m<br />\
+    <img src="styles/legend/Entertainment_48_1.png" /> 1.5m - 5m<br />\
+    <img src="styles/legend/Entertainment_48_2.png" /> Under 1.5m<br />')
+        } else {
+            lyr_Entertainment_49.set('title', 'Entertainment')
+        }
     })
     lyr_FoodBeverage_51.on('propertychange', function() {
         lyr_FoodBeverage_50.changed();
+        if (lyr_FoodBeverage_51.getVisible()) {
+            lyr_FoodBeverage_51.set('title', 'Food & Beverage<br />\
+    <img src="styles/legend/FoodBeverage_50_0.png" /> Above 1.5m<br />\
+    <img src="styles/legend/FoodBeverage_50_1.png" /> 600k - 1.5m<br />\
+    <img src="styles/legend/FoodBeverage_50_2.png" /> Under 600k<br />')
+        } else {
+            lyr_FoodBeverage_51.set('title', 'Food & Beverage')
+        }
     })
     lyr_ShoppingCentersSmall_53.on('propertychange', function() {
         lyr_ShoppingCentersSmall_52.changed();
@@ -1196,24 +1384,72 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     lyr_StripMalls_57.on('propertychange', function() {
         lyr_StripMalls_56.changed();
+        if (lyr_StripMalls_57.getVisible()) {
+            lyr_StripMalls_57.set('title', 'Strip Malls<br />\
+    <img src="styles/legend/StripMalls_56_0.png" /> Above 7m<br />\
+    <img src="styles/legend/StripMalls_56_1.png" /> 2m - 7m<br />\
+    <img src="styles/legend/StripMalls_56_2.png" /> Under 2m<br />')
+        } else {
+            lyr_StripMalls_57.set('title', 'Strip Malls')
+        }
     })
     lyr_HospitalsCareFacilities_59.on('propertychange', function() {
         lyr_HospitalsCareFacilities_58.changed();
+        if (lyr_HospitalsCareFacilities_59.getVisible()) {
+            lyr_HospitalsCareFacilities_59.set('title', 'Hospitals & Care Facilities<br />\
+    <img src="styles/legend/HospitalsCareFacilities_58_0.png" /> Above 90m<br />\
+    <img src="styles/legend/HospitalsCareFacilities_58_1.png" /> 16m - 90m<br />\
+    <img src="styles/legend/HospitalsCareFacilities_58_2.png" /> Under 16m<br />')
+        } else {
+            lyr_HospitalsCareFacilities_59.set('title', 'Hospitals & Care Facilities')
+        }
     })
     lyr_CemeteriesServices_61.on('propertychange', function() {
         lyr_CemeteriesServices_60.changed();
     })
     lyr_GolfCourses_63.on('propertychange', function() {
         lyr_GolfCourses_62.changed();
+        if (lyr_GolfCourses_63.getVisible()) {
+            lyr_GolfCourses_63.set('title', 'Golf Courses<br />\
+    <img src="styles/legend/GolfCourses_62_0.png" /> Above 3.5m<br />\
+    <img src="styles/legend/GolfCourses_62_1.png" /> 1m - 3.5m<br />\
+    <img src="styles/legend/GolfCourses_62_2.png" /> Under 1m<br />')
+        } else {
+            lyr_GolfCourses_63.set('title', 'Golf Courses')
+        }
     })
     lyr_ClubsLodges_65.on('propertychange', function() {
         lyr_ClubsLodges_64.changed();
+        if (lyr_ClubsLodges_65.getVisible()) {
+            lyr_ClubsLodges_65.set('title', 'Clubs & Lodges<br />\
+    <img src="styles/legend/ClubsLodges_64_0.png" /> Above 5m<br />\
+    <img src="styles/legend/ClubsLodges_64_1.png" /> 1.5m - 5m<br />\
+    <img src="styles/legend/ClubsLodges_64_2.png" /> Under 1.5m<br />')
+        } else {
+            lyr_ClubsLodges_65.set('title', 'Clubs & Lodges')
+        }
     })
     lyr_Resorts_67.on('propertychange', function() {
         lyr_Resorts_66.changed();
+        if (lyr_Resorts_67.getVisible()) {
+            lyr_Resorts_67.set('title', 'Resorts<br />\
+    <img src="styles/legend/Resorts_66_0.png" /> Above 27m<br />\
+    <img src="styles/legend/Resorts_66_1.png" /> 6m - 27m<br />\
+    <img src="styles/legend/Resorts_66_2.png" /> Under 6m<br />')
+        } else {
+            lyr_Resorts_67.set('title', 'Resorts')
+        }
     })
     lyr_HotelsMotels_69.on('propertychange', function() {
         lyr_HotelsMotels_68.changed();
+        if (lyr_HotelsMotels_69.getVisible()) {
+            lyr_HotelsMotels_69.set('title', 'Hotels & Motels<br />\
+    <img src="styles/legend/HotelsMotels_68_0.png" /> Above 8m<br />\
+    <img src="styles/legend/HotelsMotels_68_1.png" /> 3m - 8m<br />\
+    <img src="styles/legend/HotelsMotels_68_2.png" /> Under 3m<br />')
+        } else {
+            lyr_HotelsMotels_69.set('title', 'Hotels & Motels')
+        }
     })
     lyr_VacantIndian_5.on('propertychange', function() {
         lyr_Indian_4.changed();

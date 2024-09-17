@@ -408,10 +408,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Agriculture_23 = new ol.layer.Tile({
-            'title': 'Agriculture<br />\
-    <img src="styles/legend/Agriculture_22_0.png" /> Above 2m<br />\
-    <img src="styles/legend/Agriculture_22_1.png" /> 250k - 2m<br />\
-    <img src="styles/legend/Agriculture_22_2.png" /> Under 250k<br />',
+            'title': 'Agriculture',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -453,17 +450,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_MiscCommercial_25 = new ol.layer.Tile({
-            'title': 'Misc. Commercial<br />\
-    <img src="styles/legend/MiscCommercial_24_0.png" /> Above 97m<br />\
-    <img src="styles/legend/MiscCommercial_24_1.png" /> 57m - 97m<br />\
-    <img src="styles/legend/MiscCommercial_24_2.png" /> 30m - 57m<br />\
-    <img src="styles/legend/MiscCommercial_24_3.png" /> 21m - 30m<br />\
-    <img src="styles/legend/MiscCommercial_24_4.png" /> 14m - 21m<br />\
-    <img src="styles/legend/MiscCommercial_24_5.png" /> 8m - 14m<br />\
-    <img src="styles/legend/MiscCommercial_24_6.png" /> 4.5m - 8m<br />\
-    <img src="styles/legend/MiscCommercial_24_7.png" /> 2m - 4.5m<br />\
-    <img src="styles/legend/MiscCommercial_24_8.png" /> 700k - 2m<br />\
-    <img src="styles/legend/MiscCommercial_24_9.png" /> Under 700k<br />',
+            'title': 'Misc. Commercial',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -505,17 +492,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_IndustrialFacilities_27 = new ol.layer.Tile({
-            'title': 'Industrial Facilities<br />\
-    <img src="styles/legend/IndustrialFacilities_26_0.png" /> Above 58m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_1.png" /> 40m - 58m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_2.png" /> 25m - 40m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_3.png" /> 15m - 25m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_4.png" /> 8m - 15m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_5.png" /> 5m - 8m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_6.png" /> 3m - 5m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_7.png" /> 1.5m - 3m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_8.png" /> 500k - 1.5m<br />\
-    <img src="styles/legend/IndustrialFacilities_26_9.png" /> Under 500k<br />',
+            'title': 'Industrial Facilities',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -550,10 +527,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_MilitaryPoliceFire_29 = new ol.layer.Tile({
-            'title': 'Military, Police, & Fire<br />\
-    <img src="styles/legend/MilitaryPoliceFire_28_0.png" /> Above 15m<br />\
-    <img src="styles/legend/MilitaryPoliceFire_28_1.png" /> 3.5m - 15m<br />\
-    <img src="styles/legend/MilitaryPoliceFire_28_2.png" /> Under 3.5m<br />',
+            'title': 'Military, Police, & Fire',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -595,17 +569,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Schools_31 = new ol.layer.Tile({
-            'title': 'Schools<br />\
-    <img src="styles/legend/Schools_30_0.png" /> Above 100m<br />\
-    <img src="styles/legend/Schools_30_1.png" /> 55m - 100m<br />\
-    <img src="styles/legend/Schools_30_2.png" /> 37m - 55m<br />\
-    <img src="styles/legend/Schools_30_3.png" /> 26m - 37m<br />\
-    <img src="styles/legend/Schools_30_4.png" /> 18m - 26m<br />\
-    <img src="styles/legend/Schools_30_5.png" /> 12.5m - 18m<br />\
-    <img src="styles/legend/Schools_30_6.png" /> 7.5m - 12.5m<br />\
-    <img src="styles/legend/Schools_30_7.png" /> 3.5m - 7.5m<br />\
-    <img src="styles/legend/Schools_30_8.png" /> 1m - 3.5m<br />\
-    <img src="styles/legend/Schools_30_9.png" /> Under 1m<br />',
+            'title': 'Schools',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -640,10 +604,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ParksRec_33 = new ol.layer.Tile({
-            'title': 'Parks & Rec.<br />\
-    <img src="styles/legend/ParksRec_32_0.png" /> Above 6m<br />\
-    <img src="styles/legend/ParksRec_32_1.png" /> 2m - 6m<br />\
-    <img src="styles/legend/ParksRec_32_2.png" /> Under 2m<br />',
+            'title': 'Parks & Rec.',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -678,10 +639,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ParkingFacilities_35 = new ol.layer.Tile({
-            'title': 'Parking Facilities<br />\
-    <img src="styles/legend/ParkingFacilities_34_0.png" /> Above 7m<br />\
-    <img src="styles/legend/ParkingFacilities_34_1.png" /> 2m - 7m<br />\
-    <img src="styles/legend/ParkingFacilities_34_2.png" /> Under 2m<br />',
+            'title': 'Parking Facilities',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -716,10 +674,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_VehicleServicesSales_37 = new ol.layer.Tile({
-            'title': 'Vehicle Services & Sales<br />\
-    <img src="styles/legend/VehicleServicesSales_36_0.png" /> Above 7m<br />\
-    <img src="styles/legend/VehicleServicesSales_36_1.png" /> 2m - 7m<br />\
-    <img src="styles/legend/VehicleServicesSales_36_2.png" /> Under 2m<br />',
+            'title': 'Vehicle Services & Sales',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -754,10 +709,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_OfficesBanks_39 = new ol.layer.Tile({
-            'title': 'Offices & Banks<br />\
-    <img src="styles/legend/OfficesBanks_38_0.png" /> Above 13m<br />\
-    <img src="styles/legend/OfficesBanks_38_1.png" /> 3m - 13m<br />\
-    <img src="styles/legend/OfficesBanks_38_2.png" /> Under 3m<br />',
+            'title': 'Offices & Banks',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -792,10 +744,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Supermarkets_41 = new ol.layer.Tile({
-            'title': 'Supermarkets<br />\
-    <img src="styles/legend/Supermarkets_40_0.png" /> Above 6m<br />\
-    <img src="styles/legend/Supermarkets_40_1.png" /> 500k - 6m<br />\
-    <img src="styles/legend/Supermarkets_40_2.png" /> Under 500k<br />',
+            'title': 'Supermarkets',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -830,10 +779,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ConvenienceMarkets_43 = new ol.layer.Tile({
-            'title': 'Convenience Markets<br />\
-    <img src="styles/legend/ConvenienceMarkets_42_0.png" /> Above 1.5m<br />\
-    <img src="styles/legend/ConvenienceMarkets_42_1.png" /> 700k - 1.5m<br />\
-    <img src="styles/legend/ConvenienceMarkets_42_2.png" /> Under 700k<br />',
+            'title': 'Convenience Markets',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -868,10 +814,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_DepartmentStores_45 = new ol.layer.Tile({
-            'title': 'Department Stores<br />\
-    <img src="styles/legend/DepartmentStores_44_0.png" /> Above 10m<br />\
-    <img src="styles/legend/DepartmentStores_44_1.png" /> 2m - 10m<br />\
-    <img src="styles/legend/DepartmentStores_44_2.png" /> Under 2m<br />',
+            'title': 'Department Stores',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -906,10 +849,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Stores_47 = new ol.layer.Tile({
-            'title': 'Stores<br />\
-    <img src="styles/legend/Stores_46_0.png" /> Above 7m<br />\
-    <img src="styles/legend/Stores_46_1.png" /> 1m - 7m<br />\
-    <img src="styles/legend/Stores_46_2.png" /> Under 1m<br />',
+            'title': 'Stores',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -944,10 +884,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Entertainment_49 = new ol.layer.Tile({
-            'title': 'Entertainment<br />\
-    <img src="styles/legend/Entertainment_48_0.png" /> Above 5m<br />\
-    <img src="styles/legend/Entertainment_48_1.png" /> 1.5m - 5m<br />\
-    <img src="styles/legend/Entertainment_48_2.png" /> Under 1.5m<br />',
+            'title': 'Entertainment',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -982,10 +919,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_FoodBeverage_51 = new ol.layer.Tile({
-            'title': 'Food & Beverage<br />\
-    <img src="styles/legend/FoodBeverage_50_0.png" /> Above 1.5m<br />\
-    <img src="styles/legend/FoodBeverage_50_1.png" /> 600k - 1.5m<br />\
-    <img src="styles/legend/FoodBeverage_50_2.png" /> Under 600k<br />',
+            'title': 'Food & Beverage',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1084,10 +1018,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_StripMalls_57 = new ol.layer.Tile({
-            'title': 'Strip Malls<br />\
-    <img src="styles/legend/StripMalls_56_0.png" /> Above 7m<br />\
-    <img src="styles/legend/StripMalls_56_1.png" /> 2m - 7m<br />\
-    <img src="styles/legend/StripMalls_56_2.png" /> Under 2m<br />',
+            'title': 'Strip Malls',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1122,10 +1053,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_HospitalsCareFacilities_59 = new ol.layer.Tile({
-            'title': 'Hospitals & Care Facilities<br />\
-    <img src="styles/legend/HospitalsCareFacilities_58_0.png" /> Above 90m<br />\
-    <img src="styles/legend/HospitalsCareFacilities_58_1.png" /> 16m - 90m<br />\
-    <img src="styles/legend/HospitalsCareFacilities_58_2.png" /> Under 16m<br />',
+            'title': 'Hospitals & Care Facilities',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1192,10 +1120,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_GolfCourses_63 = new ol.layer.Tile({
-            'title': 'Golf Courses<br />\
-    <img src="styles/legend/GolfCourses_62_0.png" /> Above 3.5m<br />\
-    <img src="styles/legend/GolfCourses_62_1.png" /> 1m - 3.5m<br />\
-    <img src="styles/legend/GolfCourses_62_2.png" /> Under 1m<br />',
+            'title': 'Golf Courses',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1230,10 +1155,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ClubsLodges_65 = new ol.layer.Tile({
-            'title': 'Clubs & Lodges<br />\
-    <img src="styles/legend/ClubsLodges_64_0.png" /> Above 5m<br />\
-    <img src="styles/legend/ClubsLodges_64_1.png" /> 1.5m - 5m<br />\
-    <img src="styles/legend/ClubsLodges_64_2.png" /> Under 1.5m<br />',
+            'title': 'Clubs & Lodges',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1268,10 +1190,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Resorts_67 = new ol.layer.Tile({
-            'title': 'Resorts<br />\
-    <img src="styles/legend/Resorts_66_0.png" /> Above 27m<br />\
-    <img src="styles/legend/Resorts_66_1.png" /> 6m - 27m<br />\
-    <img src="styles/legend/Resorts_66_2.png" /> Under 6m<br />',
+            'title': 'Resorts',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1306,10 +1225,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_HotelsMotels_69 = new ol.layer.Tile({
-            'title': 'Hotels & Motels<br />\
-    <img src="styles/legend/HotelsMotels_68_0.png" /> Above 8m<br />\
-    <img src="styles/legend/HotelsMotels_68_1.png" /> 3m - 8m<br />\
-    <img src="styles/legend/HotelsMotels_68_2.png" /> Under 3m<br />',
+            'title': 'Hotels & Motels',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1343,9 +1259,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ApartmentsSmall_71 = new ol.layer.Tile({
-            'title': 'Apartments - Small<br />\
-    <img src="styles/legend/ApartmentsSmall_70_0.png" /> Above 2m<br />\
-    <img src="styles/legend/ApartmentsSmall_70_1.png" /> Under 2m<br />',
+            'title': 'Apartments - Small',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1382,12 +1296,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ApartmentsLarge_73 = new ol.layer.Tile({
-            'title': 'Apartments - Large<br />\
-    <img src="styles/legend/ApartmentsLarge_72_0.png" /> Above 55m<br />\
-    <img src="styles/legend/ApartmentsLarge_72_1.png" /> 35m - 55m<br />\
-    <img src="styles/legend/ApartmentsLarge_72_2.png" /> 20m - 35m<br />\
-    <img src="styles/legend/ApartmentsLarge_72_3.png" /> 7m - 20m<br />\
-    <img src="styles/legend/ApartmentsLarge_72_4.png" /> Under 7m<br />',
+            'title': 'Apartments - Large',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1455,11 +1364,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ManufacturedHomes_77 = new ol.layer.Tile({
-            'title': 'Manufactured Homes<br />\
-    <img src="styles/legend/ManufacturedHomes_76_0.png" /> Above 7m<br />\
-    <img src="styles/legend/ManufacturedHomes_76_1.png" /> 2m - 7m<br />\
-    <img src="styles/legend/ManufacturedHomes_76_2.png" /> 500k - 2m<br />\
-    <img src="styles/legend/ManufacturedHomes_76_3.png" /> Under 500k<br />',
+            'title': 'Manufactured Homes',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1513,11 +1418,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ResidentialUnder400k_80 = new ol.layer.Tile({
-            'title': 'Residential Under 400k<br />\
-    <img src="styles/legend/Residential250k400k_79_0.png" /> 300k - 400k<br />\
-    <img src="styles/legend/Residential250k400k_79_1.png" /> 200k - 300k<br />\
-    <img src="styles/legend/ResidentialUnder250k_78_1.png" /> 100k - 200k<br />\
-    <img src="styles/legend/ResidentialUnder250k_78_2.png" /> Under 100k<br />',
+            'title': 'Residential Under 400k',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1552,10 +1453,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_Residential400k700k_82 = new ol.layer.Tile({
-            'title': 'Residential 400k - 700k<br />\
-    <img src="styles/legend/Residential400k700k_81_0.png" /> 600k - 700k<br />\
-    <img src="styles/legend/Residential400k700k_81_1.png" /> 500k - 600k<br />\
-    <img src="styles/legend/Residential400k700k_81_2.png" /> 400k - 500k<br />',
+            'title': 'Residential 400k - 700k',
             //'type': 'base',
             'opacity': 1.000000,
             
@@ -1595,15 +1493,7 @@ maxResolution:2.52824320422621,
         });
 
         var lyr_ResidentialAbove700k_84 = new ol.layer.Tile({
-            'title': 'Residential Above 700k<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_0.png" /> Above 2m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_1.png" /> 1.75m - 2m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_2.png" /> 1.5m - 1.75m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_3.png" /> 1.25m - 1.5m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_4.png" /> 1m - 1.25m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_5.png" /> 900k - 1m<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_6.png" /> 800k - 900k<br />\
-    <img src="styles/legend/ResidentialAbove700k_83_7.png" /> 700k - 800k<br />',
+            'title': 'Residential Above 700k',
             //'type': 'base',
             'opacity': 1.000000,
             
