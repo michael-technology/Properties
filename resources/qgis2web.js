@@ -67,14 +67,39 @@ var closer = document.getElementById('popup-closer');
 var sketch;
 
 closer.onclick = function() {
-    container.style.display = 'none';
-    closer.blur();
+    if (map.getView().getZoom() < 16) {
+        popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
+    }
+    if (map.getView().getZoom() >= 16) {
+        popupContent = '<ul>Select a parcel to view it\'s info.</ul>';
+    }
+    updatePopup();
     return false;
 };
-var overlayPopup = new ol.Overlay({
-    element: container
-});
-map.addOverlay(overlayPopup)
+// var overlayPopup = new ol.Overlay({
+//     element: 'bottom-left-container'
+// });
+// map.addOverlay(overlayPopup)
+
+var overlayPopup = new ol.control.Control({
+    element: container,
+    groupSelectStyle: 'group',
+    activationMode: 'click',
+	startActive: true,
+	tipLabel: "Parcel Info",
+    target: 'bottom-left-container',
+    label: '»',
+	collapseLabel: '«',
+	collapseTipLabel: 'Close'
+    });
+map.addControl(overlayPopup);
+if (hasTouchScreen || isSmallScreen) {
+	document.addEventListener('DOMContentLoaded', function() {
+		setTimeout(function() {
+			overlayPopup.hidePanel();
+		}, 500);
+	});	
+}
     
     
 var NO_POPUP = 0
@@ -303,13 +328,22 @@ function onPointerMove(evt) {
 
 map.on('pointermove', onPointerMove);
 
-var popupContent = '';
+var popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
 var popupCoord = null;
-var featuresPopupActive = false;
+var featuresPopupActive = true;
+map.on('moveend', function() {
+        if ((popupContent === '<ul>' || popupContent === '<ul>Select a parcel to view it\'s info.</ul>') && map.getView().getZoom() < 16) {
+            popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
+        }
+        if ((popupContent === '<ul>' || popupContent === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) {
+            popupContent = '<ul>Select a parcel to view it\'s info.</ul>';
+        }
+        updatePopup();
+    });
 
 function updatePopup() {
     if (popupContent) {
-        overlayPopup.setPosition(popupCoord);
+        //overlayPopup.setPosition(popupCoord);
         content.innerHTML = popupContent;
         container.style.display = 'block';
     } else {
@@ -365,9 +399,13 @@ function onSingleClickFeatures(evt) {
             }
         }
     });
-    if (popupText === '<ul>') {
-        popupText = '';
-    } else {
+    if ((popupText === '<ul>' || popupText === '<ul>Select a parcel to view it\'s info.</ul>') && map.getView().getZoom() < 16) {
+        popupText = '<ul>Zoom in closer to select a parcel.</ul>';
+    }
+    if ((popupText === '<ul>' || popupText === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) {
+        popupText = '<ul>Select a parcel to view it\'s info.</ul>';
+    }
+    if (popupText !== '<ul>' && popupText !== '<ul>Zoom in closer to select a parcel.</ul>' && popupText !== '<ul>Select a parcel to view it\'s info.</ul>') {
         popupText += '</ul>';
     }
 	
@@ -1043,7 +1081,7 @@ var layerSwitcher2 = new ol.control.LayerSwitcher2({
     activationMode: 'click',
 	startActive: true,
 	tipLabel: "Layers",
-    target: 'bottom-left-container',
+    target: 'bottom-right-container',
     label: '»',
 	collapseLabel: '«',
 	collapseTipLabel: 'Close'

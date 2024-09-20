@@ -40,7 +40,7 @@
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
-  max-height: calc(100% - 5.5em);
+  max-height: calc(100% - 17em);
 }
 
 .layer-switcher.shown.ol-control {
