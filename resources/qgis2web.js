@@ -328,6 +328,7 @@ function onPointerMove(evt) {
 
 map.on('pointermove', onPointerMove);
 
+const myWorker = new Worker("loadVectors.js");
 var popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
 var popupCoord = null;
 var featuresPopupActive = true;
@@ -337,6 +338,13 @@ map.on('moveend', function() {
         }
         if ((popupContent === '<ul>' || popupContent === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) {
             popupContent = '<ul>Select a parcel to view it\'s info.</ul>';
+        }
+        if (map.getView().getZoom() >= 16) {
+            if (window.Worker) {
+                // myWorker.postMessage([jsonSource_RemainingParcels_3, features_RemainingParcels_3, format_RemainingParcels_3, json_RemainingParcels_3, lyr_RemainingParcels_3, map]);
+                myWorker.postMessage([jsonSource_ResidentialUnder250k_78, features_ResidentialUnder250k_78, format_ResidentialUnder250k_78, json_ResidentialUnder250k_78, lyr_ResidentialUnder250k_78, map]);
+                myWorker.postMessage([jsonSource_Residential250k400k_79, features_Residential250k400k_79, format_Residential250k400k_79, json_Residential250k400k_79, lyr_Residential250k400k_79, map]);
+            }
         }
         updatePopup();
     });

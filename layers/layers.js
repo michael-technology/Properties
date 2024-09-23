@@ -1378,12 +1378,12 @@ maxResolution:28004.466152261964,
             })
         });
 var format_ResidentialUnder250k_78 = new ol.format.GeoJSON();
-var features_ResidentialUnder250k_78 = format_ResidentialUnder250k_78.readFeatures(json_ResidentialUnder250k_78, 
-            {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+var features_ResidentialUnder250k_78; // = format_ResidentialUnder250k_78.readFeatures(json_ResidentialUnder250k_78, 
+            // {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
 var jsonSource_ResidentialUnder250k_78 = new ol.source.Vector({
     attributions: ' ',
 });
-jsonSource_ResidentialUnder250k_78.addFeatures(features_ResidentialUnder250k_78);
+// jsonSource_ResidentialUnder250k_78.addFeatures(features_ResidentialUnder250k_78);
 var lyr_ResidentialUnder250k_78 = new ol.layer.Vector({
                 declutter: false,
                 source:jsonSource_ResidentialUnder250k_78,
@@ -1398,12 +1398,12 @@ maxResolution:2.52824320422621,
     // <img src="styles/legend/ResidentialUnder250k_78_2.png" /> Under 100k<br />'
         });
 var format_Residential250k400k_79 = new ol.format.GeoJSON();
-var features_Residential250k400k_79 = format_Residential250k400k_79.readFeatures(json_Residential250k400k_79, 
-            {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
+var features_Residential250k400k_79; // = format_Residential250k400k_79.readFeatures(json_Residential250k400k_79, 
+            // {dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'});
 var jsonSource_Residential250k400k_79 = new ol.source.Vector({
     attributions: ' ',
 });
-jsonSource_Residential250k400k_79.addFeatures(features_Residential250k400k_79);
+// jsonSource_Residential250k400k_79.addFeatures(features_Residential250k400k_79);
 var lyr_Residential250k400k_79 = new ol.layer.Vector({
                 declutter: false,
                 source:jsonSource_Residential250k400k_79,
