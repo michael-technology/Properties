@@ -341,9 +341,10 @@ map.on('moveend', function() {
         }
         if (map.getView().getZoom() >= 16) {
             if (window.Worker) {
+                var extent = map.getView().calculateExtent()
                 // myWorker.postMessage([jsonSource_RemainingParcels_3, features_RemainingParcels_3, format_RemainingParcels_3, json_RemainingParcels_3, lyr_RemainingParcels_3, map]);
-                myWorker.postMessage([jsonSource_ResidentialUnder250k_78, features_ResidentialUnder250k_78, format_ResidentialUnder250k_78, json_ResidentialUnder250k_78, lyr_ResidentialUnder250k_78, map]);
-                myWorker.postMessage([jsonSource_Residential250k400k_79, features_Residential250k400k_79, format_Residential250k400k_79, json_Residential250k400k_79, lyr_Residential250k400k_79, map]);
+                myWorker.postMessage([jsonSource_ResidentialUnder250k_78, features_ResidentialUnder250k_78, format_ResidentialUnder250k_78, json_ResidentialUnder250k_78, lyr_ResidentialUnder250k_78, extent]);
+                myWorker.postMessage([jsonSource_Residential250k400k_79, features_Residential250k400k_79, format_Residential250k400k_79, json_Residential250k400k_79, lyr_Residential250k400k_79, extent]);
             }
         }
         updatePopup();

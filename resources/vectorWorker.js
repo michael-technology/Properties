@@ -5,12 +5,12 @@ onmessage = (e) => {
     var format = e.data[2];
     var jsonFile = e.data[3];
     var layer = e.data[4];
-    var map = e.data[5];
+    var extent = e.data[5];
 
     console.log("Message received from main script");
     jsonSource.clear();
     features = format.readFeatures(jsonFile, 
-        {dataProjection: 'EPSG:4326', extent: map.getView().calculateExtent(), featureProjection: 'EPSG:3857'});
+        {dataProjection: 'EPSG:4326', extent: extent, featureProjection: 'EPSG:3857'});
         jsonSource.addFeatures(features);
     layer.changed();
     console.log("Posting message back to main script");
