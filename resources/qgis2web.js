@@ -202,7 +202,7 @@ function onPointerMove(evt) {
     var currentLayer;
     var currentFeatureKeys;
     var clusteredFeatures;
-    var clusterLenght;
+    var clusterLength;
     var popupText = '<ul>';
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
         if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") == undefined)) {
@@ -216,7 +216,7 @@ function onPointerMove(evt) {
             currentLayer = layer;
             clusteredFeatures = feature.get("features");
             if (clusteredFeatures) {
-				clusterLenght = clusteredFeatures.length;
+				clusterLength = clusteredFeatures.length;
 			}
             var clusterFeature;
             if (typeof clusteredFeatures !== "undefined") {
@@ -224,8 +224,8 @@ function onPointerMove(evt) {
                     for(var n=0; n<clusteredFeatures.length; n++) {
                         currentFeature = clusteredFeatures[n];
                         currentFeatureKeys = currentFeature.getKeys();
-                        popupText += '<li><table>'
-                        popupText += '<a>' + '<b>' + layer.get('popuplayertitle') + '</b>' + '</a>';
+                        popupText += '<li><table>';
+                        popupText += '<a>' + '<b>' + feature.get('Land Use') + '</b>' + '</a>';
                         popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
                         popupText += '</table></li>';    
                     }
@@ -234,7 +234,7 @@ function onPointerMove(evt) {
                 currentFeatureKeys = currentFeature.getKeys();
                 if (doPopup) {
                     popupText += '<li><table>';
-                    popupText += '<a>' + '<b>' + layer.get('popuplayertitle') + '</b>' + '</a>';
+                    popupText += '<a>' + '<b>' + feature.get('Land Use') + '</b>' + '</a>';
                     popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
                     popupText += '</table></li>';
                 }
@@ -264,24 +264,24 @@ function onPointerMove(evt) {
 
                 if (currentFeature.getGeometry().getType() == 'Point' || currentFeature.getGeometry().getType() == 'MultiPoint') {
                     var radius
-					if (typeof clusteredFeatures == "undefined") {
-						radius = featureStyle.getImage().getRadius();
-					} else {
-						radius = parseFloat(featureStyle.split('radius')[1].split(' ')[1]) + clusterLenght;
-					}
+					// if (typeof clusteredFeatures == "undefined") {
+					// 	radius = featureStyle.getImage().getRadius();
+					// } else {
+					// 	radius = parseFloat(featureStyle.split('radius')[1].split(' ')[1]) + clusterLength;
+					// }
 
                     highlightStyle = new ol.style.Style({
-                        image: new ol.style.Circle({
-                            stroke: new ol.style.Stroke({
-                                color: '#00ffff',
-                                lineDash: null,
-                                width: 5
-                            }),
-                            // fill: new ol.style.Fill({
-                            //     color: "#00ffff"
-                            // }),
-                            radius: radius
-                        })
+                        // image: new ol.style.Circle({
+                        //     stroke: new ol.style.Stroke({
+                        //         color: '#00ffff',
+                        //         lineDash: null,
+                        //         width: 5
+                        //     }),
+                        //     // fill: new ol.style.Fill({
+                        //     //     color: "#00ffff"
+                        //     // }),
+                        //     radius: radius
+                        // })
                     })
                 } else if (currentFeature.getGeometry().getType() == 'LineString' || currentFeature.getGeometry().getType() == 'MultiLineString') {
 
@@ -321,14 +321,17 @@ function onPointerMove(evt) {
             container.style.display = 'block';        
         } else {
             container.style.display = 'none';
-            closer.blur();
+            closer.blur(); 
         }
     }
 };
 
 map.on('pointermove', onPointerMove);
 
-const myWorker = new Worker("loadVectors.js");
+// const myWorker = new Worker('./resources/vectorWorker.js'); // , { type: "module" });
+// myWorker.onerror = function(event){
+//     throw new Error(event.message + " (" + event.filename + ":" + event.lineno + ")");
+// };
 var popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
 var popupCoord = null;
 var featuresPopupActive = true;
@@ -336,19 +339,57 @@ map.on('moveend', function() {
         if ((popupContent === '<ul>' || popupContent === '<ul>Select a parcel to view it\'s info.</ul>') && map.getView().getZoom() < 16) {
             popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
         }
-        if ((popupContent === '<ul>' || popupContent === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) {
+        if ((popupContent === '<ul>' || popupContent === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) { 
             popupContent = '<ul>Select a parcel to view it\'s info.</ul>';
-        }
+        } 
         if (map.getView().getZoom() >= 16) {
-            if (window.Worker) {
-                var extent = map.getView().calculateExtent()
-                // myWorker.postMessage([jsonSource_RemainingParcels_3, features_RemainingParcels_3, format_RemainingParcels_3, json_RemainingParcels_3, lyr_RemainingParcels_3, map]);
-                myWorker.postMessage([jsonSource_ResidentialUnder250k_78, features_ResidentialUnder250k_78, format_ResidentialUnder250k_78, json_ResidentialUnder250k_78, lyr_ResidentialUnder250k_78, extent]);
-                myWorker.postMessage([jsonSource_Residential250k400k_79, features_Residential250k400k_79, format_Residential250k400k_79, json_Residential250k400k_79, lyr_Residential250k400k_79, extent]);
-            }
+            //if (window.Worker) {
+                var extent = ol.proj.transformExtent(map.getView().calculateExtent(), 'EPSG:3857','EPSG:4326');
+                var left = extent[0];
+                var bottom = extent[1];
+                var right = extent[2];
+                var top = extent[3];
+                var horizontalMid = (right + ((left - right) / 2));
+                var verticalMid = (bottom + ((top - bottom) / 2));
+                jsonSource_TopLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + left + '%2C' + top + '%2C' + horizontalMid + '%2C' + verticalMid + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopLeft.refresh();
+                jsonSource_BottomLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + left + '%2C' + verticalMid + '%2C' + horizontalMid + '%2C' + bottom + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomLeft.refresh();
+                jsonSource_TopRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + horizontalMid + '%2C' + top + '%2C' + right + '%2C' + verticalMid + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopRight.refresh();
+                jsonSource_BottomRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + horizontalMid + '%2C' + verticalMid + '%2C' + right + '%2C' + bottom + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomRight.refresh();
+                jsonSource_Addresses1_88.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/Addresses/MapServer/3/query?where=1%3D1&outFields=STREET_NO,ADDRESS,ZIPCODE,ZIPCITY,LON,LAT&geometry=' + extent[0] + '%2C' + extent[1] + '%2C' + extent[2] + '%2C' + extent[3] + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_Addresses1_88.refresh();
+                // var format = new ol.format.GeoJSON();
+                // var features = format.readFeatures(json_Residential250k400k_79, 
+                    // {dataProjection: 'EPSG:4326', extent: extent, featureProjection: 'EPSG:3857'});
+                // console.log(features); 
+                // myWorker.postMessage([JSON.stringify(json_Residential250k400k_79), JSON.stringify(jsonSource_Residential250k400k_79), extent]);
+                // console.log('should have triggered worker'); 
+                // jsonSource_Residential250k400k_79.clear();
+                // myWorker.postMessage([extent, 33, "this"]);
+                // jsonSource_Residential250k400k_79.addFeatures(features_Residential250k400k_79);
+                // lyr_Residential250k400k_79.changed();
+                //myWorker.postMessage([extent]);
+            //}
         }
         updatePopup();
-    });
+});
+
+// myWorker.onmessage = function(e) {
+//     var message = JSON.parse(e.data);
+//     console.log('This is the JSON parsed features sent from the worker:');
+//     console.log(message);
+//     // features_Residential250k400k_79 = format_Residential250k400k_79.writeFeaturesObject(e.data);
+//     jsonSource_Residential250k400k_79.clear();
+//     jsonSource_Residential250k400k_79.addFeatures(message);
+//     console.log('This is the JSON source after adding the features:');
+//     console.log(jsonSource_Residential250k400k_79);
+//     // jsonSource_Residential250k400k_79 = message;
+//     jsonSource_Residential250k400k_79.changed();
+//     lyr_Residential250k400k_79.changed();
+// };
 
 function updatePopup() {
     if (popupContent) {
@@ -375,10 +416,14 @@ function onSingleClickFeatures(evt) {
     var currentFeatureKeys;
     var clusteredFeatures;
     var popupText = '<ul>';
+    var parcelID = '';
     
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-        if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
+        if (parcelID !== feature.get('PARCEL') && layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
             var doPopup = false;
+            var centroid = ol.proj.toLonLat(ol.extent.getCenter(feature.getGeometry().getExtent()));
+            feature.set('HighRes 5D Map', 'HTTPS://GIS.PIMA.GOV/PICTOMETRY/IPA/LLVIEWER.ASPX?LAT=' + centroid[1] + '&LON=' + centroid[0]);
+            parcelID = feature.get('PARCEL');
             for (var k in layer.get('fieldImages')) {
                 if (layer.get('fieldImages')[k] !== "Hidden") {
                     doPopup = true;
@@ -392,18 +437,18 @@ function onSingleClickFeatures(evt) {
                         currentFeature = clusteredFeatures[n];
                         currentFeatureKeys = currentFeature.getKeys();
                         popupText += '<li><table>';
-                        popupText += '<a><b>' + layer.get('popuplayertitle') + '</b></a>';
+                        popupText += '<a><b>' + feature.get('Land Use') + '</b></a>';
                         popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                        popupText += '</table></li>';    
+                        popupText += '</table></li>';
                     }
                 }
             } else {
                 currentFeatureKeys = currentFeature.getKeys();
                 if (doPopup) {
                     popupText += '<li><table>';
-                    popupText += '<a><b>' + layer.get('popuplayertitle') + '</b></a>';
+                    popupText += '<a><b>' + feature.get('Land Use') + '</b></a>';
                     popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                    popupText += '</table>';
+                    popupText += '</table></li>';  
                 }
             }
         }
@@ -662,7 +707,7 @@ var measureControl = (function (Control) {
     typeSelect.id = "type";
 
     var measurementOption = [
-        { value: "LineString", description: "Lenght" },
+        { value: "LineString", description: "Length" },
         { value: "Polygon", description: "Area" }
         ];
     measurementOption.forEach(function (option) {
@@ -1164,8 +1209,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 //My Stuff
     lyr_ResidentialUnder400k_80.on('propertychange', function() {
-        lyr_Residential250k400k_79.changed();
-        lyr_ResidentialUnder250k_78.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ResidentialUnder400k_80.getVisible()) {
             lyr_ResidentialUnder400k_80.set('title', 'Residential Under 400k<br />\
                 <img src="styles/legend/Residential250k400k_79_0.png" /> 300k - 400k<br />\
@@ -1177,7 +1224,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Residential400k700k_82.on('propertychange', function() {
-        lyr_Residential400k700k_81.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Residential400k700k_82.getVisible()) {
             lyr_Residential400k700k_82.set('title', 'Residential 400k - 700k<br />\
     <img src="styles/legend/Residential400k700k_81_0.png" /> 600k - 700k<br />\
@@ -1188,7 +1238,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ResidentialAbove700k_84.on('propertychange', function() {
-        lyr_ResidentialAbove700k_83.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ResidentialAbove700k_84.getVisible()) {
             lyr_ResidentialAbove700k_84.set('title', 'Residential Above 700k<br />\
     <img src="styles/legend/ResidentialAbove700k_83_0.png" /> Above 2m<br />\
@@ -1204,10 +1257,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ResidentialCommonArea_75.on('propertychange', function() {
-        lyr_ResidentialCommonArea_74.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_ResidentialCommonArea_75.getVisible()) {
+            lyr_ResidentialCommonArea_75.set('title', '<img src="styles/legend/ResidentialCommonArea_74.png" /> Residential Common Area<br />')
+        } else {
+            lyr_ResidentialCommonArea_75.set('title', 'Residential Common Area')
+        }
     })
     lyr_ManufacturedHomes_77.on('propertychange', function() {
-        lyr_ManufacturedHomes_76.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ManufacturedHomes_77.getVisible()) {
             lyr_ManufacturedHomes_77.set('title', 'Manufactured Homes<br />\
     <img src="styles/legend/ManufacturedHomes_76_0.png" /> Above 7m<br />\
@@ -1219,7 +1283,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ApartmentsSmall_71.on('propertychange', function() {
-        lyr_ApartmentsSmall_70.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ApartmentsSmall_71.getVisible()) {
             lyr_ApartmentsSmall_71.set('title', 'Apartments - Small<br />\
     <img src="styles/legend/ApartmentsSmall_70_0.png" /> Above 2m<br />\
@@ -1229,7 +1296,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ApartmentsLarge_73.on('propertychange', function() {
-        lyr_ApartmentsLarge_72.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ApartmentsLarge_73.getVisible()) {
             lyr_ApartmentsLarge_73.set('title', 'Apartments - Large<br />\
     <img src="styles/legend/ApartmentsLarge_72_0.png" /> Above 55m<br />\
@@ -1242,7 +1312,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Agriculture_23.on('propertychange', function() {
-        lyr_Agriculture_22.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Agriculture_23.getVisible()) {
             lyr_Agriculture_23.set('title', 'Agriculture<br />\
     <img src="styles/legend/Agriculture_22_0.png" /> Above 2m<br />\
@@ -1253,7 +1326,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_MiscCommercial_25.on('propertychange', function() {
-        lyr_MiscCommercial_24.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_MiscCommercial_25.getVisible()) {
             lyr_MiscCommercial_25.set('title', 'Misc. Commercial<br />\
     <img src="styles/legend/MiscCommercial_24_0.png" /> Above 97m<br />\
@@ -1271,7 +1347,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_IndustrialFacilities_27.on('propertychange', function() {
-        lyr_IndustrialFacilities_26.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_IndustrialFacilities_27.getVisible()) {
             lyr_IndustrialFacilities_27.set('title', 'Industrial Facilities<br />\
     <img src="styles/legend/IndustrialFacilities_26_0.png" /> Above 58m<br />\
@@ -1289,7 +1368,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_MilitaryPoliceFire_29.on('propertychange', function() {
-        lyr_MilitaryPoliceFire_28.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_MilitaryPoliceFire_29.getVisible()) {
             lyr_MilitaryPoliceFire_29.set('title', 'Military, Police, & Fire<br />\
     <img src="styles/legend/MilitaryPoliceFire_28_0.png" /> Above 15m<br />\
@@ -1300,7 +1382,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Schools_31.on('propertychange', function() {
-        lyr_Schools_30.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Schools_31.getVisible()) {
             lyr_Schools_31.set('title', 'Schools<br />\
     <img src="styles/legend/Schools_30_0.png" /> Above 100m<br />\
@@ -1318,7 +1403,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ParksRec_33.on('propertychange', function() {
-        lyr_ParksRec_32.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ParksRec_33.getVisible()) {
             lyr_ParksRec_33.set('title', 'Parks & Rec.<br />\
     <img src="styles/legend/ParksRec_32_0.png" /> Above 6m<br />\
@@ -1329,7 +1417,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ParkingFacilities_35.on('propertychange', function() {
-        lyr_ParkingFacilities_34.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ParkingFacilities_35.getVisible()) {
             lyr_ParkingFacilities_35.set('title', 'Parking Facilities<br />\
     <img src="styles/legend/ParkingFacilities_34_0.png" /> Above 7m<br />\
@@ -1340,7 +1431,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VehicleServicesSales_37.on('propertychange', function() {
-        lyr_VehicleServicesSales_36.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_VehicleServicesSales_37.getVisible()) {
             lyr_VehicleServicesSales_37.set('title', 'Vehicle Services & Sales<br />\
     <img src="styles/legend/VehicleServicesSales_36_0.png" /> Above 7m<br />\
@@ -1351,7 +1445,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_OfficesBanks_39.on('propertychange', function() {
-        lyr_OfficesBanks_38.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_OfficesBanks_39.getVisible()) {
             lyr_OfficesBanks_39.set('title', 'Offices & Banks<br />\
     <img src="styles/legend/OfficesBanks_38_0.png" /> Above 13m<br />\
@@ -1362,7 +1459,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Supermarkets_41.on('propertychange', function() {
-        lyr_Supermarkets_40.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Supermarkets_41.getVisible()) {
             lyr_Supermarkets_41.set('title', 'Supermarkets<br />\
     <img src="styles/legend/Supermarkets_40_0.png" /> Above 6m<br />\
@@ -1373,7 +1473,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ConvenienceMarkets_43.on('propertychange', function() {
-        lyr_ConvenienceMarkets_42.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ConvenienceMarkets_43.getVisible()) {
             lyr_ConvenienceMarkets_43.set('title', 'Convenience Markets<br />\
     <img src="styles/legend/ConvenienceMarkets_42_0.png" /> Above 1.5m<br />\
@@ -1384,7 +1487,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_DepartmentStores_45.on('propertychange', function() {
-        lyr_DepartmentStores_44.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_DepartmentStores_45.getVisible()) {
             lyr_DepartmentStores_45.set('title', 'Department Stores<br />\
     <img src="styles/legend/DepartmentStores_44_0.png" /> Above 10m<br />\
@@ -1395,7 +1501,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Stores_47.on('propertychange', function() {
-        lyr_Stores_46.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Stores_47.getVisible()) {
             lyr_Stores_47.set('title', 'Stores<br />\
     <img src="styles/legend/Stores_46_0.png" /> Above 7m<br />\
@@ -1406,7 +1515,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Entertainment_49.on('propertychange', function() {
-        lyr_Entertainment_48.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Entertainment_49.getVisible()) {
             lyr_Entertainment_49.set('title', 'Entertainment<br />\
     <img src="styles/legend/Entertainment_48_0.png" /> Above 5m<br />\
@@ -1417,7 +1529,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_FoodBeverage_51.on('propertychange', function() {
-        lyr_FoodBeverage_50.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_FoodBeverage_51.getVisible()) {
             lyr_FoodBeverage_51.set('title', 'Food & Beverage<br />\
     <img src="styles/legend/FoodBeverage_50_0.png" /> Above 1.5m<br />\
@@ -1428,13 +1543,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ShoppingCentersSmall_53.on('propertychange', function() {
-        lyr_ShoppingCentersSmall_52.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_ShoppingCentersSmall_53.getVisible()) {
+            lyr_ShoppingCentersSmall_53.set('title', '<img src="styles/legend/ShoppingCentersSmall_52.png" /> Shopping Centers - Small')
+        } else {
+            lyr_ShoppingCentersSmall_53.set('title', 'Shopping Centers - Small')
+        }
     })
     lyr_ShoppingCentersLarge_55.on('propertychange', function() {
-        lyr_ShoppingCentersLarge_54.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_ShoppingCentersLarge_55.getVisible()) {
+            lyr_ShoppingCentersLarge_55.set('title', '<img src="styles/legend/ShoppingCentersLarge_54.png" /> Shopping Centers - Large')
+        } else {
+            lyr_ShoppingCentersLarge_55.set('title', 'Shopping Centers - Large')
+        }
     })
     lyr_StripMalls_57.on('propertychange', function() {
-        lyr_StripMalls_56.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_StripMalls_57.getVisible()) {
             lyr_StripMalls_57.set('title', 'Strip Malls<br />\
     <img src="styles/legend/StripMalls_56_0.png" /> Above 7m<br />\
@@ -1445,7 +1579,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_HospitalsCareFacilities_59.on('propertychange', function() {
-        lyr_HospitalsCareFacilities_58.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_HospitalsCareFacilities_59.getVisible()) {
             lyr_HospitalsCareFacilities_59.set('title', 'Hospitals & Care Facilities<br />\
     <img src="styles/legend/HospitalsCareFacilities_58_0.png" /> Above 90m<br />\
@@ -1456,10 +1593,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_CemeteriesServices_61.on('propertychange', function() {
-        lyr_CemeteriesServices_60.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_CemeteriesServices_61.getVisible()) {
+            lyr_CemeteriesServices_61.set('title', '<img src="styles/legend/CemeteriesServices_60.png" /> Cemeteries & Services')
+        } else {
+            lyr_CemeteriesServices_61.set('title', 'Cemeteries & Services')
+        }
     })
     lyr_GolfCourses_63.on('propertychange', function() {
-        lyr_GolfCourses_62.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_GolfCourses_63.getVisible()) {
             lyr_GolfCourses_63.set('title', 'Golf Courses<br />\
     <img src="styles/legend/GolfCourses_62_0.png" /> Above 3.5m<br />\
@@ -1470,7 +1618,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ClubsLodges_65.on('propertychange', function() {
-        lyr_ClubsLodges_64.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_ClubsLodges_65.getVisible()) {
             lyr_ClubsLodges_65.set('title', 'Clubs & Lodges<br />\
     <img src="styles/legend/ClubsLodges_64_0.png" /> Above 5m<br />\
@@ -1481,7 +1632,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Resorts_67.on('propertychange', function() {
-        lyr_Resorts_66.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_Resorts_67.getVisible()) {
             lyr_Resorts_67.set('title', 'Resorts<br />\
     <img src="styles/legend/Resorts_66_0.png" /> Above 27m<br />\
@@ -1492,7 +1646,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_HotelsMotels_69.on('propertychange', function() {
-        lyr_HotelsMotels_68.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
         if (lyr_HotelsMotels_69.getVisible()) {
             lyr_HotelsMotels_69.set('title', 'Hotels & Motels<br />\
     <img src="styles/legend/HotelsMotels_68_0.png" /> Above 8m<br />\
@@ -1503,31 +1660,103 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantIndian_5.on('propertychange', function() {
-        lyr_Indian_4.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantIndian_5.getVisible()) {
+            lyr_VacantIndian_5.set('title', '<img src="styles/legend/Indian_4.png" /> Indian')
+        } else {
+            lyr_VacantIndian_5.set('title', 'Indian')
+        }
     })
     lyr_VacantFederal_7.on('propertychange', function() {
-        lyr_Federal_6.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantFederal_7.getVisible()) {
+            lyr_VacantFederal_7.set('title', '<img src="styles/legend/Federal_6.png" /> Federal')
+        } else {
+            lyr_VacantFederal_7.set('title', 'Federal')
+        }
     })
     lyr_VacantState_9.on('propertychange', function() {
-        lyr_State_8.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantState_9.getVisible()) {
+            lyr_VacantState_9.set('title', '<img src="styles/legend/State_8.png" /> State')
+        } else {
+            lyr_VacantState_9.set('title', 'State')
+        }
     })
     lyr_VacantCounty_11.on('propertychange', function() {
-        lyr_County_10.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantCounty_11.getVisible()) {
+            lyr_VacantCounty_11.set('title', '<img src="styles/legend/County_10.png" /> County')
+        } else {
+            lyr_VacantCounty_11.set('title', 'County')
+        }
     })
     lyr_VacantMunicipal_13.on('propertychange', function() {
-        lyr_Municipal_12.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantMunicipal_13.getVisible()) {
+            lyr_VacantMunicipal_13.set('title', '<img src="styles/legend/Municipal_12.png" /> Municipal')
+        } else {
+            lyr_VacantMunicipal_13.set('title', 'Municipal')
+        }
     })
     lyr_VacantIndustrial_15.on('propertychange', function() {
-        lyr_Industrial_14.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantIndustrial_15.getVisible()) {
+            lyr_VacantIndustrial_15.set('title', '<img src="styles/legend/Industrial_14.png" /> Industrial')
+        } else {
+            lyr_VacantIndustrial_15.set('title', 'Industrial')
+        }
     })
     lyr_VacantCommercial_17.on('propertychange', function() {
-        lyr_Commercial_16.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantCommercial_17.getVisible()) {
+            lyr_VacantCommercial_17.set('title', '<img src="styles/legend/Commercial_16.png" /> Commercial')
+        } else {
+            lyr_VacantCommercial_17.set('title', 'Commercial')
+        }
     })
     lyr_VacantResidential_19.on('propertychange', function() {
-        lyr_Residential_18.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_VacantResidential_19.getVisible()) {
+            lyr_VacantResidential_19.set('title', '<img src="styles/legend/Residential_18.png" /> Residential')
+        } else {
+            lyr_VacantResidential_19.set('title', 'Residential')
+        }
     })
     lyr_IncompleteSubdivisions_21.on('propertychange', function() {
-        lyr_IncompleteSubdivisions_20.changed();
+        lyr_TopLeft.changed();
+        lyr_BottomLeft.changed();
+        lyr_TopRight.changed();
+        lyr_BottomRight.changed();
+        if (lyr_IncompleteSubdivisions_21.getVisible()) {
+            lyr_IncompleteSubdivisions_21.set('title', '<img src="styles/legend/IncompleteSubdivisions_20.png" /> Incomplete Subdivisions')
+        } else {
+            lyr_IncompleteSubdivisions_21.set('title', 'Incomplete Subdivisions')
+        }
     })
 //End of My Stuff
 
