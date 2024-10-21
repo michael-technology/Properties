@@ -4,15 +4,16 @@ var map = new ol.Map({
     renderer: 'canvas',
     layers: layersList,
     view: new ol.View({
-        extent: [-12694513.865673, 3612101.949855, -12216717.229725, 3907271.098720], maxZoom: 22, minZoom: 9, projection: new ol.proj.Projection({
+        extent: [-12933412.183648, 3566020.476064, -11977818.911751, 4156358.773794], maxZoom: 22, minZoom: 8, projection: new ol.proj.Projection({
             code: 'EPSG:3857',
             //extent: [-20037508.342789, -20037508.342789, 20037508.342789, 20037508.342789],
-            units: 'm'})
+            units: 'm'}),
+            constrainResolution: true
     })
 });
 
 //initial view - epsg:3857 coordinates if not "Match project CRS"
-map.getView().fit([-12694513.865673, 3612101.949855, -12216717.229725, 3907271.098720], map.getSize());
+map.getView().fit([-12933412.183648, 3566020.476064, -11977818.911751, 4156358.773794], map.getSize());
 
 ////small screen definition
     var hasTouchScreen = map.getViewport().classList.contains('ol-touch');
@@ -148,6 +149,9 @@ function createPopupField(currentFeature, currentFeatureKeys, layer) {
     for (var i = 0; i < currentFeatureKeys.length; i++) {
         if (currentFeatureKeys[i] != 'geometry') {
             var popupField = '';
+            if (currentFeatureKeys[i] == 'LAND_SIZE') {
+                currentFeature.set(currentFeatureKeys[i], currentFeature.get(currentFeatureKeys[i]) / 43560);
+            }
             if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "hidden field") {
                 continue;
             } else if (layer.get('fieldLabels')[currentFeatureKeys[i]] == "inline label - visible with data") {
@@ -204,43 +208,56 @@ function onPointerMove(evt) {
     var clusteredFeatures;
     var clusterLength;
     var popupText = '<ul>';
-    map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-        if (layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") == undefined)) {
-            var doPopup = false;
-            for (k in layer.get('fieldImages')) {
-                if (layer.get('fieldImages')[k] != "Hidden") {
-                    doPopup = true;
+    var parcelID = '';
+
+    if (doHover) {
+        map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+            if (parcelID !== feature.get('APN') && parcelID !== feature.get('PARCEL') && layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") == undefined)) {
+                var doPopup = false;
+                var centroid = ol.proj.toLonLat(ol.extent.getCenter(feature.getGeometry().getExtent()));
+                feature.set('HighRes 5D Map', 'HTTPS://GIS.PIMA.GOV/PICTOMETRY/IPA/LLVIEWER.ASPX?LAT=' + centroid[1] + '&LON=' + centroid[0]);
+                parcelID = feature.get('PARCEL');
+                if (parcelID === undefined) {
+                    parcelID = feature.get('APN');
+                    feature.set('HighRes 5D Map', 'HTTPS://MAPS.MCASSESSOR.MARICOPA.GOV/IPA.ASPX?1=' + centroid[1] + '&2=' + centroid[0]);
+                } else {
+                    feature.set('HighRes 5D Map', 'HTTPS://GIS.PIMA.GOV/PICTOMETRY/IPA/LLVIEWER.ASPX?LAT=' + centroid[1] + '&LON=' + centroid[0]);
                 }
-            }
-            currentFeature = feature;
-            currentLayer = layer;
-            clusteredFeatures = feature.get("features");
-            if (clusteredFeatures) {
-				clusterLength = clusteredFeatures.length;
-			}
-            var clusterFeature;
-            if (typeof clusteredFeatures !== "undefined") {
-                if (doPopup) {
-                    for(var n=0; n<clusteredFeatures.length; n++) {
-                        currentFeature = clusteredFeatures[n];
-                        currentFeatureKeys = currentFeature.getKeys();
+                for (k in layer.get('fieldImages')) {
+                    if (layer.get('fieldImages')[k] != "Hidden") {
+                        doPopup = true;
+                    }
+                }
+                currentFeature = feature;
+                currentLayer = layer;
+                clusteredFeatures = feature.get("features");
+                if (clusteredFeatures) {
+                    clusterLength = clusteredFeatures.length;
+                }
+                var clusterFeature;
+                if (typeof clusteredFeatures !== "undefined") {
+                    if (doPopup) {
+                        for(var n=0; n<clusteredFeatures.length; n++) {
+                            currentFeature = clusteredFeatures[n];
+                            currentFeatureKeys = currentFeature.getKeys();
+                            popupText += '<li><table>';
+                            popupText += '<a>' + '<b>' + feature.get('Land Use') + '</b>' + '</a>';
+                            popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
+                            popupText += '</table></li>';    
+                        }
+                    }
+                } else {
+                    currentFeatureKeys = currentFeature.getKeys();
+                    if (doPopup) {
                         popupText += '<li><table>';
                         popupText += '<a>' + '<b>' + feature.get('Land Use') + '</b>' + '</a>';
                         popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                        popupText += '</table></li>';    
+                        popupText += '</table></li>';
                     }
                 }
-            } else {
-                currentFeatureKeys = currentFeature.getKeys();
-                if (doPopup) {
-                    popupText += '<li><table>';
-                    popupText += '<a>' + '<b>' + feature.get('Land Use') + '</b>' + '</a>';
-                    popupText += createPopupField(currentFeature, currentFeatureKeys, layer);
-                    popupText += '</table></li>';
-                }
             }
-        }
-    });
+        });
+    }
     if (popupText == '<ul>') {
         popupText = '';
     } else {
@@ -332,6 +349,91 @@ map.on('pointermove', onPointerMove);
 // myWorker.onerror = function(event){
 //     throw new Error(event.message + " (" + event.filename + ":" + event.lineno + ")");
 // };
+
+
+// map.on('rendercomplete', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('loadstart', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('loadend', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('movestart', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('precompose', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('postcompose', function() {
+//     featureDisplayList = [];
+// });
+
+// map.on('rendercomplete', function() {
+//     console.log(featureDisplayList);
+//     featureDisplayList = [];
+
+//                 jsonSource_TopLeft.clear();
+//                 jsonSource_TopLeft.refresh();
+//                 jsonSource_BottomLeft.clear();
+//                 jsonSource_BottomLeft.refresh();
+                
+//                 jsonSource_TopMidLeft.clear();
+//                 jsonSource_TopMidLeft.refresh();
+//                 jsonSource_BottomMidLeft.clear();
+//                 jsonSource_BottomMidLeft.refresh();
+
+//                 jsonSource_TopMidRight.clear();
+//                 jsonSource_TopMidRight.refresh();
+//                 jsonSource_BottomMidRight.clear();
+//                 jsonSource_BottomMidRight.refresh();
+
+//                 jsonSource_TopRight.clear();
+//                 jsonSource_TopRight.refresh();
+//                 jsonSource_BottomRight.clear();
+//                 jsonSource_BottomRight.refresh();
+
+//                 jsonSource_TopLeft_Maricopa.clear();
+//                 jsonSource_TopLeft_Maricopa.refresh();
+//                 jsonSource_BottomLeft_Maricopa.clear();
+//                 jsonSource_BottomLeft_Maricopa.refresh();
+
+//                 jsonSource_TopMidLeft_Maricopa.clear();
+//                 jsonSource_TopMidLeft_Maricopa.refresh();
+//                 jsonSource_BottomMidLeft_Maricopa.clear();
+//                 jsonSource_BottomMidLeft_Maricopa.refresh();
+
+//                 jsonSource_TopMidRight_Maricopa.clear();
+//                 jsonSource_TopMidRight_Maricopa.refresh();
+//                 jsonSource_BottomMidRight_Maricopa.clear();
+//                 jsonSource_BottomMidRight_Maricopa.refresh();
+
+//                 jsonSource_TopRight_Maricopa.clear();
+//                 jsonSource_TopRight_Maricopa.refresh();
+//                 jsonSource_BottomRight_Maricopa.clear();
+//                 jsonSource_BottomRight_Maricopa.refresh();
+// });
+
+// map.on('moveend', function() {
+//     map.getLayers().forEach(function (layer) {
+//         if (layer instanceof ol.layer.Group) {
+//             layer.getLayers().forEach (function (groupLayer) {
+//                 if(groupLayer instanceof ol.layer.Vector && groupLayer.get('popuplayertitle') === 'Bottom Right') {
+//                     var features = groupLayer.getSource().getFeatures();
+//                     console.log(groupLayer);
+//                     console.log(features);
+//                 }
+//             })
+//         }
+//     });
+// });
+
 var popupContent = '<ul>Zoom in closer to select a parcel.</ul>';
 var popupCoord = null;
 var featuresPopupActive = true;
@@ -342,6 +444,7 @@ map.on('moveend', function() {
         if ((popupContent === '<ul>' || popupContent === '<ul>Zoom in closer to select a parcel.</ul>') && map.getView().getZoom() >= 16) { 
             popupContent = '<ul>Select a parcel to view it\'s info.</ul>';
         } 
+
         if (map.getView().getZoom() >= 16) {
             //if (window.Worker) {
                 var extent = ol.proj.transformExtent(map.getView().calculateExtent(), 'EPSG:3857','EPSG:4326');
@@ -351,16 +454,113 @@ map.on('moveend', function() {
                 var top = extent[3];
                 var horizontalMid = (right + ((left - right) / 2));
                 var verticalMid = (bottom + ((top - bottom) / 2));
-                jsonSource_TopLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + left + '%2C' + top + '%2C' + horizontalMid + '%2C' + verticalMid + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                var horizontalMidLeft = (horizontalMid + ((left - horizontalMid) / 2));
+                var horizontalMidRight = (right + ((horizontalMid - right) / 2));
+
+                var extentTopLeft = left + '%2C' + top + '%2C' + horizontalMidLeft + '%2C' + verticalMid;
+                var extentBottomLeft = left + '%2C' + verticalMid + '%2C' + horizontalMidLeft + '%2C' + bottom;
+
+                var extentTopMidLeft = horizontalMidLeft + '%2C' + top + '%2C' + horizontalMid + '%2C' + verticalMid;
+                var extentBottomMidLeft = horizontalMidLeft + '%2C' + verticalMid + '%2C' + horizontalMid + '%2C' + bottom;
+
+                var extentTopMidRight = horizontalMid + '%2C' + top + '%2C' + horizontalMidRight + '%2C' + verticalMid;
+                var extentBottomMidRight = horizontalMid + '%2C' + verticalMid + '%2C' + horizontalMidRight + '%2C' + bottom;
+
+                var extentTopRight = horizontalMidRight + '%2C' + top + '%2C' + right + '%2C' + verticalMid;
+                var extentBottomRight = horizontalMidRight + '%2C' + verticalMid + '%2C' + right + '%2C' + bottom;
+
+
+                // console.log(featureDisplayList);
+                featureDisplayList = [];
+                topLeftDisplayList = [];
+                bottomLeftDisplayList = [];
+            
+
+                // jsonSource_TopLeft.clear();
+                jsonSource_TopLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentTopLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
                 jsonSource_TopLeft.refresh();
-                jsonSource_BottomLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + left + '%2C' + verticalMid + '%2C' + horizontalMid + '%2C' + bottom + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                // jsonSource_BottomLeft.clear();
+                jsonSource_BottomLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentBottomLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
                 jsonSource_BottomLeft.refresh();
-                jsonSource_TopRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + horizontalMid + '%2C' + top + '%2C' + right + '%2C' + verticalMid + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                
+                // jsonSource_TopMidLeft.clear();
+                jsonSource_TopMidLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentTopMidLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopMidLeft.refresh();
+                // jsonSource_BottomMidLeft.clear();
+                jsonSource_BottomMidLeft.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentBottomMidLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomMidLeft.refresh();
+
+                // jsonSource_TopMidRight.clear();
+                jsonSource_TopMidRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentTopMidRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopMidRight.refresh();
+                // jsonSource_BottomMidRight.clear();
+                jsonSource_BottomMidRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentBottomMidRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomMidRight.refresh();
+
+                // jsonSource_TopRight.clear();
+                jsonSource_TopRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentTopRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
                 jsonSource_TopRight.refresh();
-                jsonSource_BottomRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,LINK,GISACRES,ADDRESS_OL,PARCEL_USE,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,TAXAREA,ZIP,ZIP4,TAXYR,LIMNET,FCV&geometry=' + horizontalMid + '%2C' + verticalMid + '%2C' + right + '%2C' + bottom + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                // jsonSource_BottomRight.clear();
+                jsonSource_BottomRight.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/LandRecords/MapServer/12/query?where=1%3D1&outFields=PARCEL,ADDRESS_OL,ZIP,ZIP4,LOT,MAIL1,MAIL2,MAIL3,MAIL4,MAIL5,PARCEL_USE,GISACRES,TAXAREA,TAXYR,LIMNET,FCV,LON,LAT,LINK&geometry=' + extentBottomRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
                 jsonSource_BottomRight.refresh();
+
+
                 jsonSource_Addresses1_88.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/Addresses/MapServer/3/query?where=1%3D1&outFields=STREET_NO,ADDRESS,ZIPCODE,ZIPCITY,LON,LAT&geometry=' + extent[0] + '%2C' + extent[1] + '%2C' + extent[2] + '%2C' + extent[3] + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
                 jsonSource_Addresses1_88.refresh();
+
+                // jsonSource_TopLeft_Maricopa.clear();
+                jsonSource_TopLeft_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentTopLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopLeft_Maricopa.refresh();
+                // jsonSource_BottomLeft_Maricopa.clear();
+                jsonSource_BottomLeft_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentBottomLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomLeft_Maricopa.refresh();
+
+                // jsonSource_TopMidLeft_Maricopa.clear();
+                jsonSource_TopMidLeft_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentTopMidLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopMidLeft_Maricopa.refresh();
+                // jsonSource_BottomMidLeft_Maricopa.clear();
+                jsonSource_BottomMidLeft_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentBottomMidLeft + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomMidLeft_Maricopa.refresh();
+
+                // jsonSource_TopMidRight_Maricopa.clear();
+                jsonSource_TopMidRight_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentTopMidRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopMidRight_Maricopa.refresh();
+                // jsonSource_BottomMidRight_Maricopa.clear();
+                jsonSource_BottomMidRight_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentBottomMidRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomMidRight_Maricopa.refresh();
+
+                // jsonSource_TopRight_Maricopa.clear();
+                jsonSource_TopRight_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentTopRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_TopRight_Maricopa.refresh();
+                // jsonSource_BottomRight_Maricopa.clear();
+                jsonSource_BottomRight_Maricopa.setUrl('https://gis.mcassessor.maricopa.gov/arcgis/rest/services/MaricopaDynamicQueryService/MapServer/3/query?where=1%3D1&outFields=APN,PHYSICAL_ADDRESS,LOT_NUM,OWNER_NAME,INCAREOF,MAIL_ADDRESS,MAIL_ADDR1,MAIL_ADDR2,MAIL_CITY,MAIL_STATE,MAIL_ZIP,PUC,LAND_SIZE,LIVING_SPACE,CONST_YEAR,SALE_DATE,SALE_PRICE,TAX_YR_CUR,FCV_CUR,LPV_CUR,TAX_YR_PREV,FCV_PREV,LPV_PREV,LONGITUDE,LATITUDE&geometry=' + extentBottomRight + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                jsonSource_BottomRight_Maricopa.refresh();
+
+
+                // map.getLayers().forEach(function (layer) {
+                //     if (layer instanceof ol.layer.Group) {
+                //         layer.getLayers().forEach (function (groupLayer) {
+                //             if (groupLayer instanceof ol.layer.Vector) {
+                //                 if (groupLayer.get('popuplayertitle') === 'Top Left') {
+                //                     var features = groupLayer.getSource().getFeatures();
+                //                     topLeftDisplayList.push(features);
+                //                 } else if (groupLayer.get('popuplayertitle') === 'Bottom Left') {
+                //                     var features = groupLayer.getSource().getFeatures();
+                //                     bottomLeftDisplayList.push(features);
+                //                 }
+                //             }
+                //         })
+                //     }
+                // });
+                // console.log(bottomLeftDisplayList);
+
+                // featureDisplayList = [];
+
+
+
+                // jsonSource_Addresses1_88.setUrl('https://gisdata.pima.gov/arcgis1/rest/services/GISOpenData/Addresses/MapServer/3/query?where=1%3D1&outFields=STREET_NO,ADDRESS,ZIPCODE,ZIPCITY,LON,LAT&geometry=' + extent[0] + '%2C' + extent[1] + '%2C' + extent[2] + '%2C' + extent[3] + '&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects&outSR=4326&f=json');
+                // jsonSource_Addresses1_88.refresh();
+
                 // var format = new ol.format.GeoJSON();
                 // var features = format.readFeatures(json_Residential250k400k_79, 
                     // {dataProjection: 'EPSG:4326', extent: extent, featureProjection: 'EPSG:3857'});
@@ -419,11 +619,17 @@ function onSingleClickFeatures(evt) {
     var parcelID = '';
     
     map.forEachFeatureAtPixel(pixel, function(feature, layer) {
-        if (parcelID !== feature.get('PARCEL') && layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
+        if (parcelID !== feature.get('APN') && parcelID !== feature.get('PARCEL') && layer && feature instanceof ol.Feature && (layer.get("interactive") || layer.get("interactive") === undefined)) {
             var doPopup = false;
             var centroid = ol.proj.toLonLat(ol.extent.getCenter(feature.getGeometry().getExtent()));
-            feature.set('HighRes 5D Map', 'HTTPS://GIS.PIMA.GOV/PICTOMETRY/IPA/LLVIEWER.ASPX?LAT=' + centroid[1] + '&LON=' + centroid[0]);
             parcelID = feature.get('PARCEL');
+            if (parcelID === undefined) {
+                parcelID = feature.get('APN');
+                feature.set('LINK', 'HTTPS://MCASSESSOR.MARICOPA.GOV/MCS/?q=' + feature.get('APN'));
+                feature.set('HighRes 5D Map', 'HTTPS://MAPS.MCASSESSOR.MARICOPA.GOV/IPA.ASPX?1=' + feature.get('LATITUDE') + '&2=' + feature.get('LONGITUDE'));
+            } else {
+                feature.set('HighRes 5D Map', 'HTTPS://GIS.PIMA.GOV/PICTOMETRY/IPA/LLVIEWER.ASPX?LAT=' + feature.get('LAT') + '&LON=' + feature.get('LON'));
+            }
             for (var k in layer.get('fieldImages')) {
                 if (layer.get('fieldImages')[k] !== "Hidden") {
                     doPopup = true;
@@ -1208,11 +1414,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 //My Stuff
+
+function layersChanged() {
+    lyr_TopLeft.changed();
+    lyr_BottomLeft.changed();
+    lyr_TopMidLeft.changed();
+    lyr_BottomMidLeft.changed();
+    lyr_TopMidRight.changed();
+    lyr_BottomMidRight.changed();
+    lyr_TopRight.changed();
+    lyr_BottomRight.changed();
+    lyr_TopLeft_Maricopa.changed();
+    lyr_BottomLeft_Maricopa.changed();
+    lyr_TopMidLeft_Maricopa.changed();
+    lyr_BottomMidLeft_Maricopa.changed();
+    lyr_TopMidRight_Maricopa.changed();
+    lyr_BottomMidRight_Maricopa.changed();
+    lyr_TopRight_Maricopa.changed();
+    lyr_BottomRight_Maricopa.changed();
+}
+
     lyr_ResidentialUnder400k_80.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ResidentialUnder400k_80.getVisible()) {
             lyr_ResidentialUnder400k_80.set('title', 'Residential Under 400k<br />\
                 <img src="styles/legend/Residential250k400k_79_0.png" /> 300k - 400k<br />\
@@ -1224,10 +1447,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Residential400k700k_82.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Residential400k700k_82.getVisible()) {
             lyr_Residential400k700k_82.set('title', 'Residential 400k - 700k<br />\
     <img src="styles/legend/Residential400k700k_81_0.png" /> 600k - 700k<br />\
@@ -1238,10 +1458,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ResidentialAbove700k_84.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ResidentialAbove700k_84.getVisible()) {
             lyr_ResidentialAbove700k_84.set('title', 'Residential Above 700k<br />\
     <img src="styles/legend/ResidentialAbove700k_83_0.png" /> Above 2m<br />\
@@ -1257,10 +1474,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ResidentialCommonArea_75.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ResidentialCommonArea_75.getVisible()) {
             lyr_ResidentialCommonArea_75.set('title', '<img src="styles/legend/ResidentialCommonArea_74.png" /> Residential Common Area<br />')
         } else {
@@ -1268,10 +1482,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ManufacturedHomes_77.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ManufacturedHomes_77.getVisible()) {
             lyr_ManufacturedHomes_77.set('title', 'Manufactured Homes<br />\
     <img src="styles/legend/ManufacturedHomes_76_0.png" /> Above 7m<br />\
@@ -1283,10 +1494,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ApartmentsSmall_71.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ApartmentsSmall_71.getVisible()) {
             lyr_ApartmentsSmall_71.set('title', 'Apartments - Small<br />\
     <img src="styles/legend/ApartmentsSmall_70_0.png" /> Above 2m<br />\
@@ -1296,10 +1504,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ApartmentsLarge_73.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ApartmentsLarge_73.getVisible()) {
             lyr_ApartmentsLarge_73.set('title', 'Apartments - Large<br />\
     <img src="styles/legend/ApartmentsLarge_72_0.png" /> Above 55m<br />\
@@ -1312,10 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Agriculture_23.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Agriculture_23.getVisible()) {
             lyr_Agriculture_23.set('title', 'Agriculture<br />\
     <img src="styles/legend/Agriculture_22_0.png" /> Above 2m<br />\
@@ -1326,10 +1528,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_MiscCommercial_25.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_MiscCommercial_25.getVisible()) {
             lyr_MiscCommercial_25.set('title', 'Misc. Commercial<br />\
     <img src="styles/legend/MiscCommercial_24_0.png" /> Above 97m<br />\
@@ -1347,10 +1546,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_IndustrialFacilities_27.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_IndustrialFacilities_27.getVisible()) {
             lyr_IndustrialFacilities_27.set('title', 'Industrial Facilities<br />\
     <img src="styles/legend/IndustrialFacilities_26_0.png" /> Above 58m<br />\
@@ -1368,10 +1564,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_MilitaryPoliceFire_29.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_MilitaryPoliceFire_29.getVisible()) {
             lyr_MilitaryPoliceFire_29.set('title', 'Military, Police, & Fire<br />\
     <img src="styles/legend/MilitaryPoliceFire_28_0.png" /> Above 15m<br />\
@@ -1382,10 +1575,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Schools_31.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Schools_31.getVisible()) {
             lyr_Schools_31.set('title', 'Schools<br />\
     <img src="styles/legend/Schools_30_0.png" /> Above 100m<br />\
@@ -1403,10 +1593,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ParksRec_33.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ParksRec_33.getVisible()) {
             lyr_ParksRec_33.set('title', 'Parks & Rec.<br />\
     <img src="styles/legend/ParksRec_32_0.png" /> Above 6m<br />\
@@ -1417,10 +1604,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ParkingFacilities_35.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ParkingFacilities_35.getVisible()) {
             lyr_ParkingFacilities_35.set('title', 'Parking Facilities<br />\
     <img src="styles/legend/ParkingFacilities_34_0.png" /> Above 7m<br />\
@@ -1431,10 +1615,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VehicleServicesSales_37.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VehicleServicesSales_37.getVisible()) {
             lyr_VehicleServicesSales_37.set('title', 'Vehicle Services & Sales<br />\
     <img src="styles/legend/VehicleServicesSales_36_0.png" /> Above 7m<br />\
@@ -1445,10 +1626,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_OfficesBanks_39.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_OfficesBanks_39.getVisible()) {
             lyr_OfficesBanks_39.set('title', 'Offices & Banks<br />\
     <img src="styles/legend/OfficesBanks_38_0.png" /> Above 13m<br />\
@@ -1459,10 +1637,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Supermarkets_41.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Supermarkets_41.getVisible()) {
             lyr_Supermarkets_41.set('title', 'Supermarkets<br />\
     <img src="styles/legend/Supermarkets_40_0.png" /> Above 6m<br />\
@@ -1473,10 +1648,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ConvenienceMarkets_43.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ConvenienceMarkets_43.getVisible()) {
             lyr_ConvenienceMarkets_43.set('title', 'Convenience Markets<br />\
     <img src="styles/legend/ConvenienceMarkets_42_0.png" /> Above 1.5m<br />\
@@ -1487,10 +1659,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_DepartmentStores_45.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_DepartmentStores_45.getVisible()) {
             lyr_DepartmentStores_45.set('title', 'Department Stores<br />\
     <img src="styles/legend/DepartmentStores_44_0.png" /> Above 10m<br />\
@@ -1501,10 +1670,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Stores_47.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Stores_47.getVisible()) {
             lyr_Stores_47.set('title', 'Stores<br />\
     <img src="styles/legend/Stores_46_0.png" /> Above 7m<br />\
@@ -1515,10 +1681,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Entertainment_49.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Entertainment_49.getVisible()) {
             lyr_Entertainment_49.set('title', 'Entertainment<br />\
     <img src="styles/legend/Entertainment_48_0.png" /> Above 5m<br />\
@@ -1529,10 +1692,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_FoodBeverage_51.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_FoodBeverage_51.getVisible()) {
             lyr_FoodBeverage_51.set('title', 'Food & Beverage<br />\
     <img src="styles/legend/FoodBeverage_50_0.png" /> Above 1.5m<br />\
@@ -1543,10 +1703,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ShoppingCentersSmall_53.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ShoppingCentersSmall_53.getVisible()) {
             lyr_ShoppingCentersSmall_53.set('title', '<img src="styles/legend/ShoppingCentersSmall_52.png" /> Shopping Centers - Small')
         } else {
@@ -1554,10 +1711,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ShoppingCentersLarge_55.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ShoppingCentersLarge_55.getVisible()) {
             lyr_ShoppingCentersLarge_55.set('title', '<img src="styles/legend/ShoppingCentersLarge_54.png" /> Shopping Centers - Large')
         } else {
@@ -1565,10 +1719,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_StripMalls_57.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_StripMalls_57.getVisible()) {
             lyr_StripMalls_57.set('title', 'Strip Malls<br />\
     <img src="styles/legend/StripMalls_56_0.png" /> Above 7m<br />\
@@ -1579,10 +1730,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_HospitalsCareFacilities_59.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_HospitalsCareFacilities_59.getVisible()) {
             lyr_HospitalsCareFacilities_59.set('title', 'Hospitals & Care Facilities<br />\
     <img src="styles/legend/HospitalsCareFacilities_58_0.png" /> Above 90m<br />\
@@ -1593,10 +1741,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_CemeteriesServices_61.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_CemeteriesServices_61.getVisible()) {
             lyr_CemeteriesServices_61.set('title', '<img src="styles/legend/CemeteriesServices_60.png" /> Cemeteries & Services')
         } else {
@@ -1604,10 +1749,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_GolfCourses_63.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_GolfCourses_63.getVisible()) {
             lyr_GolfCourses_63.set('title', 'Golf Courses<br />\
     <img src="styles/legend/GolfCourses_62_0.png" /> Above 3.5m<br />\
@@ -1618,10 +1760,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_ClubsLodges_65.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_ClubsLodges_65.getVisible()) {
             lyr_ClubsLodges_65.set('title', 'Clubs & Lodges<br />\
     <img src="styles/legend/ClubsLodges_64_0.png" /> Above 5m<br />\
@@ -1632,10 +1771,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_Resorts_67.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_Resorts_67.getVisible()) {
             lyr_Resorts_67.set('title', 'Resorts<br />\
     <img src="styles/legend/Resorts_66_0.png" /> Above 27m<br />\
@@ -1646,10 +1782,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_HotelsMotels_69.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_HotelsMotels_69.getVisible()) {
             lyr_HotelsMotels_69.set('title', 'Hotels & Motels<br />\
     <img src="styles/legend/HotelsMotels_68_0.png" /> Above 8m<br />\
@@ -1660,10 +1793,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantIndian_5.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantIndian_5.getVisible()) {
             lyr_VacantIndian_5.set('title', '<img src="styles/legend/Indian_4.png" /> Indian')
         } else {
@@ -1671,10 +1801,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantFederal_7.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantFederal_7.getVisible()) {
             lyr_VacantFederal_7.set('title', '<img src="styles/legend/Federal_6.png" /> Federal')
         } else {
@@ -1682,10 +1809,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantState_9.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantState_9.getVisible()) {
             lyr_VacantState_9.set('title', '<img src="styles/legend/State_8.png" /> State')
         } else {
@@ -1693,10 +1817,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantCounty_11.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantCounty_11.getVisible()) {
             lyr_VacantCounty_11.set('title', '<img src="styles/legend/County_10.png" /> County')
         } else {
@@ -1704,10 +1825,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantMunicipal_13.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantMunicipal_13.getVisible()) {
             lyr_VacantMunicipal_13.set('title', '<img src="styles/legend/Municipal_12.png" /> Municipal')
         } else {
@@ -1715,10 +1833,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantIndustrial_15.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantIndustrial_15.getVisible()) {
             lyr_VacantIndustrial_15.set('title', '<img src="styles/legend/Industrial_14.png" /> Industrial')
         } else {
@@ -1726,10 +1841,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantCommercial_17.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantCommercial_17.getVisible()) {
             lyr_VacantCommercial_17.set('title', '<img src="styles/legend/Commercial_16.png" /> Commercial')
         } else {
@@ -1737,10 +1849,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_VacantResidential_19.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_VacantResidential_19.getVisible()) {
             lyr_VacantResidential_19.set('title', '<img src="styles/legend/Residential_18.png" /> Residential')
         } else {
@@ -1748,10 +1857,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     lyr_IncompleteSubdivisions_21.on('propertychange', function() {
-        lyr_TopLeft.changed();
-        lyr_BottomLeft.changed();
-        lyr_TopRight.changed();
-        lyr_BottomRight.changed();
+        layersChanged();
         if (lyr_IncompleteSubdivisions_21.getVisible()) {
             lyr_IncompleteSubdivisions_21.set('title', '<img src="styles/legend/IncompleteSubdivisions_20.png" /> Incomplete Subdivisions')
         } else {

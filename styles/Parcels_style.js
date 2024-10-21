@@ -3,6 +3,24 @@ var placement = 'point';
 var style;
 var colorLine = 'rgba(0,255,0,1.0)';
 var colorFill = 'rgba(0,255,0,1.0)';
+var value = 0;
+var landUseCode = '0000';
+var parcelUse = 'Miscellaneous';
+var featureDisplayList = [];
+var topLeftDisplayList = [];
+var bottomLeftDisplayList = [];
+var parcelID;
+
+Array.prototype.remove = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
 
 String.prototype.like = function(search) {
     if (typeof search !== 'string' || this === null) {return false; }
@@ -19,8 +37,23 @@ var style_Parcels = function(feature, resolution){
         feature: feature,
         variables: {}
     };
-    var value = feature.get("FCV");
-    var landUseCode = feature.get("PARCEL_USE");
+    value = feature.get("FCV");
+    parcelID = feature.get('PARCEL');
+    landUseCode = feature.get("PARCEL_USE");
+    if (typeof landUseCode === 'undefined') {
+        parcelID = feature.get('APN');
+        var fcvCur = feature.get("FCV_CUR");
+        if (fcvCur !== null && typeof fcvCur === 'string') {
+            value = Math.round(fcvCur.replace(/,/g, ''));
+        } else {
+            value = 0;
+        }
+        landUseCode = feature.get("PUC");
+    }
+    // console.log(feature);
+    // if (topLeftDisplayList.includes(parcelID) && bottomLeftDisplayList.includes(parcelID)) {
+    //     return
+    // }
     var labelText = "";
     size = 0;
     var labelFont = "10px, sans-serif";
@@ -35,17 +68,8 @@ var style_Parcels = function(feature, resolution){
         labelText = String("");
     }
 	
-	//My Insert
-	var alpha, val1, val2;
-	var zoom = map.getView().getZoom();
-	if (lyr_ResidentialUnder400k_80.getVisible() && zoom < 19) {
-		alpha = fnc_clamp(val1 = [(1/fnc_clamp(val2 = [zoom - 15, 1, 99])), 0.0, 1.0]);
-	} else {
-		alpha = 0.0;
-	}
-	//End Insert
     if (landUseCode !== null) {
-        var parcelUse = matchesParcelUse(landUseCode);
+        parcelUse = matchesParcelUse(landUseCode);
         if (value !== null && value !== undefined && value > 500) {
             feature.setProperties({'Land Use':parcelUse + ': $' + value.toLocaleString()});
         } else {
@@ -548,11 +572,26 @@ var style_Parcels = function(feature, resolution){
             colorLine = 'rgba(153,30,30,1.0)';
             colorFill = 'rgba(128,25,25,' + transparency(lyr_VacantIndian_5) + ')';
         }
+
+        else if (parcelUse === undefined || parcelUse === 'undefined' || typeof parcelUse === undefined || typeof parcelUse === 'undefined' || parcelUse === 'Miscellaneous' || landUseCode === '0000' || landUseCode === '' || landUseCode === ' ' || landUseCode === '  ' || landUseCode === '   ' || landUseCode === '    ' || landUseCode === null || landUseCode === 'null' || landUseCode === undefined || typeof landUseCode === 'undefined') {
+            colorLine = 'rgba(204,204,204,1.0)';
+            colorFill = 'rgba(255,255,255,0.0)';
+        }
         
         else {
             colorLine = 'rgba(204,204,204,1.0)';
             colorFill = 'rgba(255,255,255,0.0)';
         }
+    } else {
+        parcelUse = 'Miscellaneous'
+        if (value !== null && value !== undefined && value > 500) {
+            feature.setProperties({'Land Use':parcelUse + ': $' + value.toLocaleString()});
+        } else {
+            // Handle the case where value is null or undefined (e.g., set a default value or log an error)
+            feature.setProperties({'Land Use':parcelUse}); 
+        }
+        colorLine = 'rgba(204,204,204,1.0)';
+        colorFill = 'rgba(255,255,255,0.0)';
     }
     style = [ new ol.style.Style({
         stroke: new ol.style.Stroke({color: colorLine, lineDash: null, lineCap: 'butt', lineJoin: 'miter', width: 1.9}),fill: new ol.style.Fill({color: colorFill}),
@@ -560,6 +599,8 @@ var style_Parcels = function(feature, resolution){
                             labelFill, placement, bufferColor,
                             bufferWidth)
         })]
+    
+    featureDisplayList.push(parcelID);
     return style;
 };
 
@@ -575,18 +616,23 @@ function transparency(toggleLayer) {
 }
 
 function matchesParcelUse(parcelUse) {
+    if (parcelUse === null || parcelUse === 'null') {
+        return 'Miscellaneous'
+    }
+
     if (
         parcelUse.like('01%') ||
-        (parcelUse.like('071%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
-        (parcelUse.like('072%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
-        (parcelUse.like('073%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
-        (parcelUse.like('074%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
-        (parcelUse.like('075%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
-        (parcelUse.like('076%') && !parcelUse.like('07%5') && !parcelUse.like('07%6')) ||
+        (parcelUse.like('071%') && (typeof value !== 'undefined' && value > 500)) ||
+        (parcelUse.like('072%') && (typeof value !== 'undefined' && value > 500)) ||
+        (parcelUse.like('073%') && (typeof value !== 'undefined' && value > 500)) ||
+        (parcelUse.like('074%') && (typeof value !== 'undefined' && value > 500)) ||
+        (parcelUse.like('075%') && (typeof value !== 'undefined' && value > 500)) ||
+        (parcelUse.like('076%') && (typeof value !== 'undefined' && value > 500)) ||
         parcelUse.like('091%') ||
         parcelUse === '2801' ||
         parcelUse === '2807' ||
         parcelUse === '2887' ||
+        parcelUse.like('85%') ||
         parcelUse.like('871%') ||
         parcelUse.like('921%') ||
         parcelUse.like('941%') ||
@@ -601,8 +647,8 @@ function matchesParcelUse(parcelUse) {
         parcelUse.like('078%') ||
         parcelUse.like('079%') ||
         parcelUse.like('077%') ||
-        parcelUse.like('07%5') ||
-        parcelUse.like('07%6')
+        (parcelUse.like('07%5') && (typeof value === 'undefined' || value <= 500))  ||
+        (parcelUse.like('07%6') && (typeof value === 'undefined' || value <= 500))
     ){ return 'Common Area'; }
 
     if (
